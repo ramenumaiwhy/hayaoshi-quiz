@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hayaoshi-quiz - シンプルな早押しクイズ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-tertiary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #888888;
+      --text-muted: #555555;
+      --accent: #ff3e3e;
+      --accent-glow: rgba(255, 62, 62, 0.4);
+      --accent-soft: #ff6b6b;
+      --success: #00ff88;
+      --border: #2a2a2a;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg-primary: #fafafa;
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f0f0f0;
+        --text-primary: #0a0a0a;
+        --text-secondary: #666666;
+        --text-muted: #999999;
+        --accent: #e62222;
+        --accent-glow: rgba(230, 34, 34, 0.3);
+        --accent-soft: #ff4444;
+        --success: #00aa55;
+        --border: #e0e0e0;
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===== Hero Section ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      padding: 2rem;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background:
+        radial-gradient(circle at 20% 80%, var(--accent-glow) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(0, 255, 136, 0.1) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      text-align: center;
+      z-index: 1;
+      max-width: 900px;
+    }
+
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 15vw, 10rem);
+      letter-spacing: 0.05em;
+      line-height: 1;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-soft) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .tagline {
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      color: var(--text-secondary);
+      margin-bottom: 3rem;
+      animation: fadeInUp 1s ease-out 0.2s backwards;
+    }
+
+    .typewriter {
+      display: inline;
+    }
+
+    .typewriter::after {
+      content: '|';
+      animation: blink 0.8s infinite;
+      color: var(--accent);
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 3rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.1em;
+      color: var(--bg-primary);
+      background: var(--accent);
+      border: none;
+      border-radius: 60px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 30px var(--accent-glow);
+      animation: fadeInUp 1s ease-out 0.4s backwards, pulse 2s ease-in-out infinite 1.5s;
+    }
+
+    .cta-button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 50px var(--accent-glow);
+    }
+
+    .cta-button svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 30px var(--accent-glow); }
+      50% { box-shadow: 0 0 60px var(--accent-glow), 0 0 80px var(--accent-glow); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator svg {
+      width: 32px;
+      height: 32px;
+      stroke: var(--text-muted);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    /* ===== Section Styles ===== */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      letter-spacing: 0.05em;
+      margin-bottom: 3rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+
+    .section-title.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== How To Play ===== */
+    .steps {
+      display: grid;
+      gap: 1.5rem;
+      counter-reset: step;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.5rem;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      opacity: 0;
+      transform: translateX(-30px);
+      transition: all 0.6s ease-out;
+    }
+
+    .step.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.75rem;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+      color: var(--bg-primary);
+      border-radius: 50%;
+    }
+
+    .step-content h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-content p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .key-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .key {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 2px 0 var(--border);
+    }
+
+    /* ===== Features ===== */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature {
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease-out;
+    }
+
+    .feature.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border-radius: 16px;
+    }
+
+    .feature-icon svg {
+      width: 32px;
+      height: 32px;
+      stroke: var(--accent);
+    }
+
+    .feature h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    /* ===== Tech Stack ===== */
+    .tech-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .tech-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: all 0.5s ease-out;
+    }
+
+    .tech-item.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .tech-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ===== Footer ===== */
+    footer {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== Demo Preview ===== */
+    .demo-preview {
+      margin: 4rem auto;
+      max-width: 600px;
+      padding: 2rem;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease-out;
+    }
+
+    .demo-preview.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .demo-question {
+      font-size: 1.1rem;
+      line-height: 1.8;
+      min-height: 80px;
+    }
+
+    .demo-cursor {
+      color: var(--accent);
+      animation: blink 0.8s infinite;
+    }
+
+    .demo-answer {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .demo-answer-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-answer-input {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      min-height: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .demo-choices {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .demo-choice {
+      padding: 1rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-choice:hover {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .demo-choice.correct {
+      background: var(--success);
+      color: var(--bg-primary);
+      border-color: var(--success);
+    }
+
+    .demo-choice.wrong {
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="logo">HAYAOSHI</h1>
+      <p class="tagline">
+        <span class="typewriter" id="typewriter"></span>
+      </p>
+      <a href="http://localhost:5173" class="cta-button">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        START
+      </a>
+    </div>
+    <div class="scroll-indicator">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <path d="M12 5v14M19 12l-7 7-7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- How to Play -->
+  <section id="howto">
+    <h2 class="section-title">HOW TO PLAY</h2>
+
+    <div class="demo-preview">
+      <div class="demo-question" id="demo-question"></div>
+      <div class="demo-answer">
+        <div class="demo-answer-label">あなたの回答:</div>
+        <div class="demo-answer-input" id="demo-answer"></div>
+        <div class="demo-choices" id="demo-choices">
+          <div class="demo-choice">テ</div>
+          <div class="demo-choice">ツ</div>
+          <div class="demo-choice">ア</div>
+          <div class="demo-choice">キ</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>ゲームスタート</h3>
+          <p>スペースキーを押してクイズを開始。緊張の瞬間が始まる。</p>
+          <div class="key-hint">
+            <span class="key">Space</span>
+            <span class="text-muted">でスタート</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>問題を読む</h3>
+          <p>問題文が1文字ずつ表示される。答えがわかったら即座に押せ！</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>早押し！</h3>
+          <p>確信したら迷わずスペースキー。問題文の途中でも押せる。</p>
+          <div class="key-hint">
+            <span class="key">Space</span>
+            <span class="text-muted">で早押し</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>4択から選択</h3>
+          <p>正解の文字を1文字ずつ選んでいく。間違えたら即アウト！</p>
+          <div class="key-hint">
+            <span class="key">タップ</span>
+            <span class="text-muted">または</span>
+            <span class="key">クリック</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>次の問題へ</h3>
+          <p>正解でも不正解でもEnterで次へ進む。連続して挑戦しよう。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <h2 class="section-title">FEATURES</h2>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+        </div>
+        <h3>80ms/文字</h3>
+        <p>絶妙な速度で問題文が表示。読解力と反射神経が試される。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3>外部依存ゼロ</h3>
+        <p>React + TypeScriptのみ。軽量で高速、プライバシーも安心。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+        </div>
+        <h3>AI王データセット</h3>
+        <p>17,000問以上の高品質クイズ。CC BY-SA 4.0ライセンス。</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+            <path d="M12 18h.01"/>
+          </svg>
+        </div>
+        <h3>モバイル対応</h3>
+        <p>4択タップで回答。キーボード不要、どこでも片手でプレイ可能。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="tech">
+    <h2 class="section-title">TECH STACK</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <svg viewBox="0 0 24 24" fill="#61DAFB"><path d="M14.23 12.004a2.236 2.236 0 0 1-2.235 2.236 2.236 2.236 0 0 1-2.236-2.236 2.236 2.236 0 0 1 2.235-2.236 2.236 2.236 0 0 1 2.236 2.236zm2.648-10.69c-1.346 0-3.107.96-4.888 2.622-1.78-1.653-3.542-2.602-4.887-2.602-.41 0-.783.093-1.106.278-1.375.793-1.683 3.264-.973 6.365C1.98 8.917 0 10.42 0 12.004c0 1.59 1.99 3.097 5.043 4.03-.704 3.113-.39 5.588.988 6.38.32.187.69.275 1.102.275 1.345 0 3.107-.96 4.888-2.624 1.78 1.654 3.542 2.603 4.887 2.603.41 0 .783-.09 1.106-.275 1.374-.792 1.683-3.263.973-6.365C22.02 15.096 24 13.59 24 12.004c0-1.59-1.99-3.097-5.043-4.032.704-3.11.39-5.587-.988-6.38-.318-.184-.688-.277-1.092-.278zm-.005 1.09v.006c.225 0 .406.044.558.127.666.382.955 1.835.73 3.704-.054.46-.142.945-.25 1.44-.96-.236-2.006-.417-3.107-.534-.66-.905-1.345-1.727-2.035-2.447 1.592-1.48 3.087-2.292 4.105-2.295zm-9.77.02c1.012 0 2.514.808 4.11 2.28-.686.72-1.37 1.537-2.02 2.442-1.107.117-2.154.298-3.113.538-.112-.49-.195-.964-.254-1.42-.23-1.868.054-3.32.714-3.707.19-.09.4-.127.563-.132zm4.882 3.05c.455.468.91.992 1.36 1.564-.44-.02-.89-.034-1.345-.034-.46 0-.915.01-1.36.034.44-.572.895-1.096 1.345-1.565zM12 8.1c.74 0 1.477.034 2.202.093.406.582.802 1.203 1.183 1.86.372.64.71 1.29 1.018 1.946-.308.655-.646 1.31-1.013 1.95-.38.66-.773 1.288-1.18 1.87-.728.063-1.466.098-2.21.098-.74 0-1.477-.035-2.202-.093-.406-.582-.802-1.204-1.183-1.86-.372-.64-.71-1.29-1.018-1.946.303-.657.646-1.313 1.013-1.954.38-.66.773-1.286 1.18-1.868.728-.064 1.466-.098 2.21-.098zm-3.635.254c-.24.377-.48.763-.704 1.16-.225.39-.435.782-.635 1.174-.265-.656-.49-1.31-.676-1.947.64-.15 1.315-.283 2.015-.386zm7.26 0c.695.103 1.365.23 2.006.387-.18.632-.405 1.282-.66 1.933-.2-.39-.41-.783-.64-1.174-.225-.392-.465-.774-.705-1.146zm3.063.675c.484.15.944.317 1.375.498 1.732.74 2.852 1.708 2.852 2.476-.005.768-1.125 1.74-2.857 2.475-.42.18-.88.342-1.355.493-.28-.958-.646-1.956-1.1-2.98.45-1.017.81-2.01 1.085-2.964zm-13.395.004c.278.96.645 1.957 1.1 2.98-.45 1.017-.812 2.01-1.086 2.964-.484-.15-.944-.318-1.37-.5-1.732-.737-2.852-1.706-2.852-2.474 0-.768 1.12-1.742 2.852-2.476.42-.18.88-.342 1.356-.494zm11.678 4.28c.265.657.49 1.312.676 1.948-.64.157-1.316.29-2.016.39.24-.375.48-.762.705-1.158.225-.39.435-.788.636-1.18zm-9.945.02c.2.392.41.783.64 1.175.23.39.465.772.705 1.143-.695-.102-1.365-.23-2.006-.386.18-.63.406-1.282.66-1.933zM17.92 16.32c.112.493.2.968.254 1.423.23 1.868-.054 3.32-.714 3.708-.147.09-.338.128-.563.128-1.012 0-2.514-.807-4.11-2.28.686-.72 1.37-1.536 2.02-2.44 1.107-.118 2.154-.3 3.113-.54zm-11.83.01c.96.234 2.006.415 3.107.532.66.905 1.345 1.727 2.035 2.446-1.595 1.483-3.092 2.295-4.11 2.295-.22-.005-.406-.05-.553-.132-.666-.38-.955-1.834-.73-3.703.054-.46.142-.944.25-1.438zm4.56.64c.44.02.89.034 1.345.034.46 0 .915-.01 1.36-.034-.44.572-.895 1.095-1.345 1.565-.455-.47-.91-.993-1.36-1.565z"/></svg>
+        React 19
+      </div>
+      <div class="tech-item">
+        <svg viewBox="0 0 24 24" fill="#3178C6"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/></svg>
+        TypeScript
+      </div>
+      <div class="tech-item">
+        <svg viewBox="0 0 24 24" fill="#646CFF"><path d="m8.286 10.578.512-8.657a.306.306 0 0 1 .247-.282L17.377.006a.306.306 0 0 1 .353.385l-1.558 5.403a.306.306 0 0 0 .352.385l2.388-.46a.306.306 0 0 1 .332.438l-6.79 13.55-.123.19a.294.294 0 0 1-.252.14c-.177 0-.35-.152-.305-.369l1.095-5.301a.306.306 0 0 0-.388-.355l-1.433.435a.306.306 0 0 1-.389-.354l.69-3.375a.306.306 0 0 0-.37-.36l-1.33.318a.306.306 0 0 1-.358-.363z"/></svg>
+        Vite
+      </div>
+      <div class="tech-item">
+        <svg viewBox="0 0 24 24" fill="#FBF0DF"><path d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0Zm.34 5.36c-4.22 0-6.6 2.655-6.6 6.09 0 3.255 2.31 5.505 5.67 5.505 1.755 0 3.06-.345 4.38-.93l-.39-1.71c-1.14.45-2.13.69-3.42.69-2.175 0-4.02-1.11-4.02-3.69h8.34c.06-.39.12-.855.12-1.335 0-2.88-1.485-4.62-4.08-4.62Zm-.24 1.695c1.56 0 2.445 1.02 2.445 2.895H9.42c.195-1.935 1.185-2.895 2.68-2.895Z"/></svg>
+        Bun
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      データ: <a href="https://sites.google.com/view/project-aio/dataset" target="_blank" rel="noopener">AI王データセット</a> (CC BY-SA 4.0)
+    </p>
+  </footer>
+
+  <script>
+    // Typewriter effect
+    const tagline = 'シンプルな早押しクイズ、本質だけを。';
+    const typewriterEl = document.getElementById('typewriter');
+    let charIndex = 0;
+
+    function typeWriter() {
+      if (charIndex < tagline.length) {
+        typewriterEl.textContent += tagline.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeWriter, 80);
+      }
+    }
+    setTimeout(typeWriter, 800);
+
+    // Demo question and 4-choice animation
+    const demoQuestion = '元素記号でFeと表される、血液中のヘモグロビンに含まれる金属元素は何でしょう？';
+    const demoAnswer = 'テツ';
+    const demoChoicesData = [
+      ['テ', 'ア', 'キ', 'ド'],
+      ['ツ', 'ン', 'リ', 'モ']
+    ];
+    const demoEl = document.getElementById('demo-question');
+    const demoAnswerEl = document.getElementById('demo-answer');
+    const demoChoicesEl = document.getElementById('demo-choices');
+    let demoIndex = 0;
+    let demoInterval;
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function updateChoices(choices) {
+      const shuffled = shuffle(choices);
+      const choiceEls = demoChoicesEl.querySelectorAll('.demo-choice');
+      choiceEls.forEach((el, i) => {
+        el.textContent = shuffled[i];
+        el.className = 'demo-choice';
+      });
+    }
+
+    function startDemo() {
+      demoIndex = 0;
+      demoEl.innerHTML = '';
+      demoAnswerEl.textContent = '';
+      demoChoicesEl.style.display = 'none';
+
+      demoInterval = setInterval(() => {
+        if (demoIndex < demoQuestion.length) {
+          demoEl.innerHTML = demoQuestion.slice(0, demoIndex + 1) + '<span class="demo-cursor">|</span>';
+          demoIndex++;
+        } else {
+          clearInterval(demoInterval);
+          demoEl.innerHTML = demoQuestion;
+          setTimeout(simulateAnswer, 500);
+        }
+      }, 80);
+    }
+
+    function simulateAnswer() {
+      demoChoicesEl.style.display = 'grid';
+      let charIndex = 0;
+
+      function selectNextChar() {
+        if (charIndex >= demoAnswer.length) {
+          setTimeout(startDemo, 2000);
+          return;
+        }
+
+        updateChoices(demoChoicesData[charIndex]);
+
+        setTimeout(() => {
+          const correctChar = demoAnswer[charIndex];
+          const choiceEls = demoChoicesEl.querySelectorAll('.demo-choice');
+          choiceEls.forEach(el => {
+            if (el.textContent === correctChar) {
+              el.classList.add('correct');
+              demoAnswerEl.textContent += correctChar;
+            }
+          });
+
+          charIndex++;
+          setTimeout(selectNextChar, 600);
+        }, 400);
+      }
+
+      selectNextChar();
+    }
+
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+            entry.target.classList.add('visible');
+          }, index * 100);
+        }
+      });
+    }, observerOptions);
+
+    // Observe elements
+    document.querySelectorAll('.section-title, .step, .feature, .tech-item, .demo-preview').forEach(el => {
+      observer.observe(el);
+    });
+
+    // Start demo when it comes into view
+    const demoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          startDemo();
+          demoObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    demoObserver.observe(document.querySelector('.demo-preview'));
+  </script>
+</body>
+</html>
