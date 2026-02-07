@@ -10,6 +10,7 @@ type Props = {
   highScore: HighScoreData;
   isNewRecord: boolean;
   onRestart: () => void;
+  onBackToCategory?: () => void;
 };
 
 export const ScoreDisplay = ({
@@ -18,6 +19,7 @@ export const ScoreDisplay = ({
   highScore,
   isNewRecord,
   onRestart,
+  onBackToCategory,
 }: Props) => {
   const percentage = Math.round((score / totalQuestions) * 100);
 
@@ -64,6 +66,11 @@ export const ScoreDisplay = ({
       <button onClick={onRestart} style={styles.restartButton}>
         もう一度挑戦
       </button>
+      {onBackToCategory && (
+        <button onClick={onBackToCategory} style={styles.backButton}>
+          ← カテゴリ選択に戻る
+        </button>
+      )}
     </div>
   );
 };
@@ -140,6 +147,18 @@ const styles: Record<string, React.CSSProperties> = {
     borderRadius: '14px',
     cursor: 'pointer',
     boxShadow: '0 4px 20px var(--accent-glow)',
+    transition: 'all 0.2s ease',
+  },
+  backButton: {
+    display: 'block',
+    margin: '16px auto 0',
+    fontSize: '14px',
+    padding: '8px 16px',
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    cursor: 'pointer',
     transition: 'all 0.2s ease',
   },
 };

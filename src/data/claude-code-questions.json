@@ -1,0 +1,322 @@
+[
+  {
+    "id": "CC-P1-001",
+    "text": "Claude Code で会話履歴をクリアするスラッシュコマンドは何でしょう？",
+    "answer": "クリア",
+    "alternativeAnswers": ["くりあ"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-002",
+    "text": "Claude Code で使用方法のヘルプを表示するスラッシュコマンドは何でしょう？",
+    "answer": "ヘルプ",
+    "alternativeAnswers": ["へるぷ"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-003",
+    "text": "Claude Code でコンテキストを圧縮して会話をコンパクト化するスラッシュコマンドは何でしょう？",
+    "answer": "コンパクト",
+    "alternativeAnswers": ["こんぱくと"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-004",
+    "text": "Claude Code でプロジェクトの設定ファイル「CLAUDE.md」を初期化するスラッシュコマンドは何でしょう？",
+    "answer": "イニット",
+    "alternativeAnswers": ["いにっと"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-005",
+    "text": "Claude Code で設定インターフェースを開くスラッシュコマンドは何でしょう？",
+    "answer": "コンフィグ",
+    "alternativeAnswers": ["こんふぃぐ"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-006",
+    "text": "Claude Code で現在のコンテキスト使用量を視覚化するスラッシュコマンドは何でしょう？",
+    "answer": "コンテキスト",
+    "alternativeAnswers": ["こんてきすと"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-007",
+    "text": "Claude Code でトークン使用統計を表示するスラッシュコマンドは何でしょう？",
+    "answer": "コスト",
+    "alternativeAnswers": ["こすと"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-008",
+    "text": "Claude Code で REPL を終了するスラッシュコマンドは何でしょう？",
+    "answer": "イグジット",
+    "alternativeAnswers": ["いぐじっと"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-009",
+    "text": "Claude Code で現在の会話をファイルにエクスポートするスラッシュコマンドは何でしょう？",
+    "answer": "エクスポート",
+    "alternativeAnswers": ["えくすぽーと"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-010",
+    "text": "Claude Code でプランモードに入るスラッシュコマンドは何でしょう？",
+    "answer": "プラン",
+    "alternativeAnswers": ["ぷらん"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-011",
+    "text": "Claude Code でセッションの名前を変更するスラッシュコマンドは何でしょう？",
+    "answer": "リネーム",
+    "alternativeAnswers": ["りねーむ"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-012",
+    "text": "Claude Code で過去の会話を再開するスラッシュコマンドは何でしょう？",
+    "answer": "リジューム",
+    "alternativeAnswers": ["りじゅーむ"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-013",
+    "text": "Claude Code で AI モデルを選択・変更するスラッシュコマンドは何でしょう？",
+    "answer": "モデル",
+    "alternativeAnswers": ["もでる"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-014",
+    "text": "Claude Code で MCP サーバー接続を管理するスラッシュコマンドは何でしょう？",
+    "answer": "エムシーピー",
+    "alternativeAnswers": ["えむしーぴー"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-015",
+    "text": "Claude Code で権限設定を表示・更新するスラッシュコマンドは何でしょう？",
+    "answer": "パーミッションズ",
+    "alternativeAnswers": ["ぱーみっしょんず"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-016",
+    "text": "Claude Code で現在の入力や生成をキャンセルするキーボードショートカットは何でしょう？",
+    "answer": "コントロールシー",
+    "alternativeAnswers": ["こんとろーるしー"],
+    "genre": "shortcut",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-017",
+    "text": "Claude Code でセッションを終了する EOF シグナルを送るキーボードショートカットは何でしょう？",
+    "answer": "コントロールディー",
+    "alternativeAnswers": ["こんとろーるでぃー"],
+    "genre": "shortcut",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-018",
+    "text": "Claude Code でターミナル画面をクリアするキーボードショートカットは何でしょう？",
+    "answer": "コントロールエル",
+    "alternativeAnswers": ["こんとろーるえる"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-019",
+    "text": "Claude Code でエスケープキーを2回押すと何ができるでしょう？",
+    "answer": "リワインド",
+    "alternativeAnswers": ["りわいんど", "まきもどし", "巻き戻し"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-020",
+    "text": "Claude Code でプロンプトをテキストエディタで編集するキーボードショートカットは何でしょう？",
+    "answer": "コントロールジー",
+    "alternativeAnswers": ["こんとろーるじー"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-021",
+    "text": "Claude Code でファイルの内容を読み取るための基本ツールは何でしょう？",
+    "answer": "リード",
+    "alternativeAnswers": ["りーど"],
+    "genre": "tool",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-022",
+    "text": "Claude Code でファイルを新規作成または上書きするための基本ツールは何でしょう？",
+    "answer": "ライト",
+    "alternativeAnswers": ["らいと"],
+    "genre": "tool",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-023",
+    "text": "Claude Code で既存ファイルの一部を置換編集するための基本ツールは何でしょう？",
+    "answer": "エディット",
+    "alternativeAnswers": ["えでぃっと"],
+    "genre": "tool",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-024",
+    "text": "Claude Code でシェルコマンドを実行するための基本ツールは何でしょう？",
+    "answer": "バッシュ",
+    "alternativeAnswers": ["ばっしゅ"],
+    "genre": "tool",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-025",
+    "text": "Claude Code でグロブパターンを使ってファイルを検索するツールは何でしょう？",
+    "answer": "グロブ",
+    "alternativeAnswers": ["ぐろぶ"],
+    "genre": "tool",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-026",
+    "text": "Claude Code で正規表現を使ってファイル内容を検索するツールは何でしょう？",
+    "answer": "グレップ",
+    "alternativeAnswers": ["ぐれっぷ"],
+    "genre": "tool",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-027",
+    "text": "Claude Code で Web コンテンツを取得・処理するツールは何でしょう？",
+    "answer": "ウェブフェッチ",
+    "alternativeAnswers": ["うぇぶふぇっち"],
+    "genre": "tool",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-028",
+    "text": "Claude Code で Web 検索を行うツールは何でしょう？",
+    "answer": "ウェブサーチ",
+    "alternativeAnswers": ["うぇぶさーち"],
+    "genre": "tool",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-029",
+    "text": "Claude Code でサブエージェントを起動するためのツールは何でしょう？",
+    "answer": "タスク",
+    "alternativeAnswers": ["たすく"],
+    "genre": "tool",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-030",
+    "text": "Claude Code でユーザーに質問して確認を取るためのツールは何でしょう？",
+    "answer": "アスクユーザークエスチョン",
+    "alternativeAnswers": ["あすくゆーざーくえすちょん"],
+    "genre": "tool",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P1-031",
+    "text": "Claude Code で最後のアシスタント応答をクリップボードにコピーするスラッシュコマンドは何でしょう？",
+    "answer": "コピー",
+    "alternativeAnswers": ["こぴー"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-032",
+    "text": "Claude Code でバックグラウンドタスクをリスト表示するスラッシュコマンドは何でしょう？",
+    "answer": "タスクス",
+    "alternativeAnswers": ["たすくす"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-033",
+    "text": "Claude Code でカラーテーマを変更するスラッシュコマンドは何でしょう？",
+    "answer": "テーマ",
+    "alternativeAnswers": ["てーま"],
+    "genre": "slash-command",
+    "difficulty": "C"
+  },
+  {
+    "id": "CC-P1-034",
+    "text": "Claude Code で Vim スタイル編集を有効化するスラッシュコマンドは何でしょう？",
+    "answer": "ビム",
+    "alternativeAnswers": ["びむ"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-035",
+    "text": "Claude Code で現在の TODO 項目をリスト表示するスラッシュコマンドは何でしょう？",
+    "answer": "トゥドゥーズ",
+    "alternativeAnswers": ["とぅどぅーず", "トゥードゥーズ"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-036",
+    "text": "Claude Code でインストールの状態をチェックするスラッシュコマンドは何でしょう？",
+    "answer": "ドクター",
+    "alternativeAnswers": ["どくたー"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-037",
+    "text": "Claude Code で日次使用状況やセッション履歴を視覚化するスラッシュコマンドは何でしょう？",
+    "answer": "スタッツ",
+    "alternativeAnswers": ["すたっつ"],
+    "genre": "slash-command",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-038",
+    "text": "Claude Code で権限モードを切り替えるキーボードショートカットは何でしょう？",
+    "answer": "シフトタブ",
+    "alternativeAnswers": ["しふとたぶ"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-039",
+    "text": "Claude Code でタスクをバックグラウンドで実行するキーボードショートカットは何でしょう？",
+    "answer": "コントロールビー",
+    "alternativeAnswers": ["こんとろーるびー"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P1-040",
+    "text": "Claude Code でタスクリストを切り替えるキーボードショートカットは何でしょう？",
+    "answer": "コントロールティー",
+    "alternativeAnswers": ["こんとろーるてぃー"],
+    "genre": "shortcut",
+    "difficulty": "B"
+  }
+]

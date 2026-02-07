@@ -78,10 +78,16 @@ const createInitialState = (): QuizState => ({
   score: 0,
 });
 
-export const useQuiz = (questions: Question[]): UseQuizReturn => {
+export const useQuiz = (questions: Question[], key = 0): UseQuizReturn => {
   const [shuffledQuestions, setShuffledQuestions] = useState(() =>
     shuffle(questions).slice(0, QUESTIONS_PER_GAME)
   );
+
+  // key または questions が変わったら再初期化
+  useEffect(() => {
+    setShuffledQuestions(shuffle(questions).slice(0, QUESTIONS_PER_GAME));
+    setState(createInitialState());
+  }, [key, questions]);
   const [state, setState] = useState<QuizState>(createInitialState);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);

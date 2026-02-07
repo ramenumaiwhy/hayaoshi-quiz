@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
+import type { Category } from '../types';
 
-const STORAGE_KEY = 'hayaoshi-quiz-highscore';
+const getStorageKey = (category: Category | null) =>
+  category ? `hayaoshi-quiz-highscore-${category}` : 'hayaoshi-quiz-highscore';
 
 type HighScoreData = {
   score: number;
@@ -8,19 +10,23 @@ type HighScoreData = {
   date: string;
 };
 
-export const useHighScore = () => {
+export const useHighScore = (category: Category | null = null) => {
   const [highScore, setHighScore] = useState<HighScoreData | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const key = getStorageKey(category);
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
         setHighScore(JSON.parse(stored));
       } catch {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(key);
+        setHighScore(null);
       }
+    } else {
+      setHighScore(null);
     }
-  }, []);
+  }, [category]);
 
   const updateHighScore = useCallback(
     (score: number, total: number) => {
@@ -34,12 +40,12 @@ export const useHighScore = () => {
           date: new Date().toISOString(),
         };
         setHighScore(newHighScore);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newHighScore));
-        return true; // 新記録
+        localStorage.setItem(getStorageKey(category), JSON.stringify(newHighScore));
+        return true;
       }
       return false;
     },
-    [highScore]
+    [highScore, category]
   );
 
   return { highScore, updateHighScore };

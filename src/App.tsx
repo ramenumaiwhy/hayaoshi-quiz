@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef, useState, useMemo } from 'react';
 import { useQuiz } from './hooks/useQuiz';
 import { useSound } from './hooks/useSound';
 import { useHighScore } from './hooks/useHighScore';
@@ -6,12 +6,24 @@ import { QuestionDisplay } from './components/QuestionDisplay';
 import { AnswerChoices } from './components/AnswerChoices';
 import { ResultDisplay } from './components/ResultDisplay';
 import { ScoreDisplay } from './components/ScoreDisplay';
-import questions from './data/questions.json';
-import type { Question } from './types';
+import { CategorySelect } from './components/CategorySelect';
+import generalQuestions from './data/questions.json';
+import claudeCodeQuestions from './data/claude-code-questions.json';
+import type { Question, Category } from './types';
 
-const typedQuestions = questions as Question[];
+const typedGeneralQuestions = generalQuestions as Question[];
+const typedClaudeCodeQuestions = claudeCodeQuestions as Question[];
 
 function App() {
+  const [category, setCategory] = useState<Category | null>(null);
+  const [quizKey, setQuizKey] = useState(0);
+
+  const questions = useMemo(() => {
+    if (category === 'general') return typedGeneralQuestions;
+    if (category === 'claude-code') return typedClaudeCodeQuestions;
+    return [];
+  }, [category]);
+
   const {
     state,
     currentQuestion,
@@ -22,14 +34,13 @@ function App() {
     selectChoice,
     nextQuestion,
     restart,
-  } = useQuiz(typedQuestions);
+  } = useQuiz(questions, quizKey);
 
   const { play } = useSound();
-  const { highScore, updateHighScore } = useHighScore();
+  const { highScore, updateHighScore } = useHighScore(category);
   const prevPhaseRef = useRef(state.phase);
   const [isNewRecord, setIsNewRecord] = useState(false);
 
-  // 効果音を鳴らす & ハイスコア更新
   useEffect(() => {
     const prevPhase = prevPhaseRef.current;
     prevPhaseRef.current = state.phase;
@@ -44,11 +55,21 @@ function App() {
     }
   }, [state.phase, state.isCorrect, state.score, totalQuestions, play, updateHighScore]);
 
-  // リスタート時に新記録フラグをリセット
+  const handleCategorySelect = useCallback((selectedCategory: Category) => {
+    setCategory(selectedCategory);
+    setQuizKey((prev) => prev + 1);
+    setIsNewRecord(false);
+  }, []);
+
   const handleRestart = useCallback(() => {
     setIsNewRecord(false);
     restart();
   }, [restart]);
+
+  const handleBackToCategory = useCallback(() => {
+    setCategory(null);
+    setIsNewRecord(false);
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -74,23 +95,34 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  const categoryLabel = category === 'claude-code' ? 'Claude Code 学習' : '一般クイズ';
+
   return (
     <div style={styles.app}>
       <header style={styles.header}>
-        <h1 style={styles.title}>早押しクイズ</h1>
+        <h1 style={styles.title}>
+          早押しクイズ
+          {category && <span style={styles.categoryBadge}>{categoryLabel}</span>}
+        </h1>
       </header>
 
       <main style={styles.main}>
-        {state.phase === 'waiting' && (
+        {!category && <CategorySelect onSelect={handleCategorySelect} />}
+
+        {category && state.phase === 'waiting' && (
           <div style={styles.startScreen}>
             <button onClick={startQuiz} style={styles.startButton}>
               スタート
             </button>
             <div style={styles.hint}>またはスペースキー</div>
+            <button onClick={handleBackToCategory} style={styles.backButton}>
+              ← カテゴリ選択に戻る
+            </button>
           </div>
         )}
 
-        {(state.phase === 'reading' || state.phase === 'answering') &&
+        {category &&
+          (state.phase === 'reading' || state.phase === 'answering') &&
           currentQuestion && (
             <>
               <QuestionDisplay
@@ -115,7 +147,7 @@ function App() {
             </>
           )}
 
-        {state.phase === 'result' && currentQuestion && (
+        {category && state.phase === 'result' && currentQuestion && (
           <>
             <QuestionDisplay
               text={currentQuestion.text}
@@ -136,13 +168,14 @@ function App() {
           </>
         )}
 
-        {state.phase === 'finished' && (
+        {category && state.phase === 'finished' && (
           <ScoreDisplay
             score={state.score}
             totalQuestions={totalQuestions}
             highScore={highScore}
             isNewRecord={isNewRecord}
             onRestart={handleRestart}
+            onBackToCategory={handleBackToCategory}
           />
         )}
       </main>
@@ -166,6 +199,17 @@ const styles: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     color: 'var(--text-primary)',
     letterSpacing: '0.02em',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+  },
+  categoryBadge: {
+    fontSize: '12px',
+    fontWeight: 500,
+    padding: '4px 10px',
+    borderRadius: '12px',
+    backgroundColor: 'var(--accent)',
+    color: 'white',
   },
   main: {
     maxWidth: '800px',
@@ -196,6 +240,16 @@ const styles: Record<string, React.CSSProperties> = {
   hint: {
     fontSize: '14px',
     color: 'var(--text-muted)',
+  },
+  backButton: {
+    fontSize: '14px',
+    padding: '8px 16px',
+    backgroundColor: 'transparent',
+    color: 'var(--text-secondary)',
+    border: '1px solid var(--border)',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
   },
   buzzContainer: {
     textAlign: 'center',

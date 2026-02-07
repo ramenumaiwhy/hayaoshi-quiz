@@ -4,7 +4,12 @@ export type Genre =
   | 'food'          // 食べ物
   | 'history'       // 日本史・世界史
   | 'science'       // 生き物・自然科学
-  | 'sports';       // スポーツ
+  | 'sports'        // スポーツ
+  | 'slash-command' // Claude Code: スラッシュコマンド
+  | 'shortcut'      // Claude Code: キーボードショートカット
+  | 'tool';         // Claude Code: 基本ツール
+
+export type Category = 'general' | 'claude-code';
 
 export type Difficulty = 'S' | 'A' | 'B' | 'C';
 
