@@ -26,3 +26,4 @@ train_questions.json
 *.njsproj
 *.sln
 *.sw?
+.vercel

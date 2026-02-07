@@ -1,6 +1,7 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { useQuiz } from './hooks/useQuiz';
 import { useSound } from './hooks/useSound';
+import { useHighScore } from './hooks/useHighScore';
 import { QuestionDisplay } from './components/QuestionDisplay';
 import { AnswerChoices } from './components/AnswerChoices';
 import { ResultDisplay } from './components/ResultDisplay';
@@ -24,9 +25,11 @@ function App() {
   } = useQuiz(typedQuestions);
 
   const { play } = useSound();
+  const { highScore, updateHighScore } = useHighScore();
   const prevPhaseRef = useRef(state.phase);
+  const [isNewRecord, setIsNewRecord] = useState(false);
 
-  // 効果音を鳴らす
+  // 効果音を鳴らす & ハイスコア更新
   useEffect(() => {
     const prevPhase = prevPhaseRef.current;
     prevPhaseRef.current = state.phase;
@@ -35,8 +38,17 @@ function App() {
       play('buzz');
     } else if (prevPhase === 'answering' && state.phase === 'result') {
       play(state.isCorrect ? 'correct' : 'wrong');
+    } else if (prevPhase === 'result' && state.phase === 'finished') {
+      const newRecord = updateHighScore(state.score, totalQuestions);
+      setIsNewRecord(newRecord);
     }
-  }, [state.phase, state.isCorrect, play]);
+  }, [state.phase, state.isCorrect, state.score, totalQuestions, play, updateHighScore]);
+
+  // リスタート時に新記録フラグをリセット
+  const handleRestart = useCallback(() => {
+    setIsNewRecord(false);
+    restart();
+  }, [restart]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -51,10 +63,10 @@ function App() {
         nextQuestion();
       } else if (state.phase === 'finished' && (e.key === 'Enter' || e.code === 'Space')) {
         e.preventDefault();
-        restart();
+        handleRestart();
       }
     },
-    [state.phase, startQuiz, buzz, nextQuestion, restart]
+    [state.phase, startQuiz, buzz, nextQuestion, handleRestart]
   );
 
   useEffect(() => {
@@ -128,7 +140,9 @@ function App() {
           <ScoreDisplay
             score={state.score}
             totalQuestions={totalQuestions}
-            onRestart={restart}
+            highScore={highScore}
+            isNewRecord={isNewRecord}
+            onRestart={handleRestart}
           />
         )}
       </main>
