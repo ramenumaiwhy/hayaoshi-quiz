@@ -1,322 +1,902 @@
 [
   {
     "id": "CC-P1-001",
-    "text": "Claude Code で会話履歴をクリアするスラッシュコマンドは何でしょう？",
-    "answer": "クリア",
-    "alternativeAnswers": ["くりあ"],
+    "text": "Claude Code で会話履歴を完全にリセットして新しいセッションを始めるスラッシュコマンドは何でしょう？",
+    "answer": "/clear",
+    "explanation": "コンテキストが混乱したときや、まっさらな状態から始めたいときに便利。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-002",
-    "text": "Claude Code で使用方法のヘルプを表示するスラッシュコマンドは何でしょう？",
-    "answer": "ヘルプ",
-    "alternativeAnswers": ["へるぷ"],
+    "text": "Claude Code で利用可能なコマンド一覧と使い方ガイドを表示するスラッシュコマンドは何でしょう？",
+    "answer": "/help",
+    "explanation": "困ったらまずこれ。すべてのコマンドを確認できる。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-003",
-    "text": "Claude Code でコンテキストを圧縮して会話をコンパクト化するスラッシュコマンドは何でしょう？",
-    "answer": "コンパクト",
-    "alternativeAnswers": ["こんぱくと"],
+    "text": "Claude Code で長い会話を要約してトークン使用量を削減するスラッシュコマンドは何でしょう？",
+    "answer": "/compact",
+    "explanation": "コンテキストが溢れそうなときに使う。会話の要点を保ちながら圧縮する。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-004",
-    "text": "Claude Code でプロジェクトの設定ファイル「CLAUDE.md」を初期化するスラッシュコマンドは何でしょう？",
-    "answer": "イニット",
-    "alternativeAnswers": ["いにっと"],
+    "text": "Claude Code でプロジェクトルートに CLAUDE.md を新規作成するスラッシュコマンドは何でしょう？",
+    "answer": "/init",
+    "explanation": "プロジェクト固有の指示を書ける設定ファイルを生成する。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-005",
-    "text": "Claude Code で設定インターフェースを開くスラッシュコマンドは何でしょう？",
-    "answer": "コンフィグ",
-    "alternativeAnswers": ["こんふぃぐ"],
+    "text": "Claude Code でテーマや権限などのオプションを対話的に変更するスラッシュコマンドは何でしょう？",
+    "answer": "/config",
+    "explanation": "各種設定を確認・調整できる。環境をカスタマイズしたいときに使う。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-006",
-    "text": "Claude Code で現在のコンテキスト使用量を視覚化するスラッシュコマンドは何でしょう？",
-    "answer": "コンテキスト",
-    "alternativeAnswers": ["こんてきすと"],
+    "text": "Claude Code でどのファイルがどれだけトークンを消費しているかをカラーグリッドで表示するスラッシュコマンドは何でしょう？",
+    "answer": "/context",
+    "explanation": "会話に含まれる情報量を視覚化。最適化の参考に使える。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-007",
-    "text": "Claude Code でトークン使用統計を表示するスラッシュコマンドは何でしょう？",
-    "answer": "コスト",
-    "alternativeAnswers": ["こすと"],
+    "text": "Claude Code で現在のセッションで使用したトークン数と概算料金を確認するスラッシュコマンドは何でしょう？",
+    "answer": "/cost",
+    "explanation": "API 利用料の目安がわかる。使いすぎ防止に便利。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-008",
-    "text": "Claude Code で REPL を終了するスラッシュコマンドは何でしょう？",
-    "answer": "イグジット",
-    "alternativeAnswers": ["いぐじっと"],
+    "text": "Claude Code のセッションを閉じて CLI を抜けるスラッシュコマンドは何でしょう？",
+    "answer": "/exit",
+    "explanation": "Ctrl+D でも同じ効果。作業が終わったら使う。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-009",
-    "text": "Claude Code で現在の会話をファイルにエクスポートするスラッシュコマンドは何でしょう？",
-    "answer": "エクスポート",
-    "alternativeAnswers": ["えくすぽーと"],
+    "text": "Claude Code で会話履歴を Markdown ファイルとして書き出すスラッシュコマンドは何でしょう？",
+    "answer": "/export",
+    "explanation": "ドキュメント化や共有に便利。後から見返せる形式で保存。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-010",
-    "text": "Claude Code でプランモードに入るスラッシュコマンドは何でしょう？",
-    "answer": "プラン",
-    "alternativeAnswers": ["ぷらん"],
+    "text": "Claude Code で実装前に設計だけを提案させ、編集を行わせないモードに入るスラッシュコマンドは何でしょう？",
+    "answer": "/plan",
+    "explanation": "まず計画を立ててから実装に入りたいときに使う。慎重なアプローチ向け。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-011",
-    "text": "Claude Code でセッションの名前を変更するスラッシュコマンドは何でしょう？",
-    "answer": "リネーム",
-    "alternativeAnswers": ["りねーむ"],
+    "text": "Claude Code で現在のセッションに分かりやすいタイトルをつけるスラッシュコマンドは何でしょう？",
+    "answer": "/rename",
+    "explanation": "後でセッションを探しやすくなる。作業内容がわかる名前をつけよう。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-012",
-    "text": "Claude Code で過去の会話を再開するスラッシュコマンドは何でしょう？",
-    "answer": "リジューム",
-    "alternativeAnswers": ["りじゅーむ"],
+    "text": "Claude Code で過去のセッションを選んで続きから作業するスラッシュコマンドは何でしょう？",
+    "answer": "/resume",
+    "explanation": "以前の会話のコンテキストを引き継げる。中断した作業を続けたいときに。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-013",
-    "text": "Claude Code で AI モデルを選択・変更するスラッシュコマンドは何でしょう？",
-    "answer": "モデル",
-    "alternativeAnswers": ["もでる"],
+    "text": "Claude Code で Sonnet、Opus、Haiku など使用する AI エンジンを切り替えるスラッシュコマンドは何でしょう？",
+    "answer": "/model",
+    "explanation": "タスクの複雑さに応じて使い分ける。速度重視なら Haiku、品質重視なら Opus。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-014",
-    "text": "Claude Code で MCP サーバー接続を管理するスラッシュコマンドは何でしょう？",
-    "answer": "エムシーピー",
-    "alternativeAnswers": ["えむしーぴー"],
+    "text": "Claude Code で外部ツール連携サーバー（Model Context Protocol）の接続状態を確認・再接続するスラッシュコマンドは何でしょう？",
+    "answer": "/mcp",
+    "explanation": "接続が切れたときや状態確認に使う。外部サービスとの連携を管理。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-015",
-    "text": "Claude Code で権限設定を表示・更新するスラッシュコマンドは何でしょう？",
-    "answer": "パーミッションズ",
-    "alternativeAnswers": ["ぱーみっしょんず"],
+    "text": "Claude Code でファイル編集やコマンド実行の許可設定を確認・変更するスラッシュコマンドは何でしょう？",
+    "answer": "/permissions",
+    "explanation": "Claude に何を許可するかを細かく制御できる。セキュリティ管理に重要。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-016",
     "text": "Claude Code で現在の入力や生成をキャンセルするキーボードショートカットは何でしょう？",
-    "answer": "コントロールシー",
-    "alternativeAnswers": ["こんとろーるしー"],
+    "answer": "Ctrl+C",
+    "explanation": "生成中の応答を中断。誤った方向に進んでいるときにすぐ止められる。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-017",
     "text": "Claude Code でセッションを終了する EOF シグナルを送るキーボードショートカットは何でしょう？",
-    "answer": "コントロールディー",
-    "alternativeAnswers": ["こんとろーるでぃー"],
+    "answer": "Ctrl+D",
+    "explanation": "End-Of-File シグナルで Claude Code を終了。/exit と同じ効果。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-018",
-    "text": "Claude Code でターミナル画面をクリアするキーボードショートカットは何でしょう？",
-    "answer": "コントロールエル",
-    "alternativeAnswers": ["こんとろーるえる"],
+    "text": "Claude Code で画面表示を消して見やすくする（会話履歴は残る）キーボードショートカットは何でしょう？",
+    "answer": "Ctrl+L",
+    "explanation": "ターミナルが見づらくなったときに使う。データは消えない。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-019",
-    "text": "Claude Code でエスケープキーを2回押すと何ができるでしょう？",
-    "answer": "リワインド",
-    "alternativeAnswers": ["りわいんど", "まきもどし", "巻き戻し"],
+    "text": "Claude Code で直前のターンを取り消して巻き戻す（リワインド）ためのキーボードショートカットは何でしょう？",
+    "answer": "Esc×2",
+    "explanation": "やり直したいときに便利。間違った方向に進んだら即座に戻せる。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-020",
     "text": "Claude Code でプロンプトをテキストエディタで編集するキーボードショートカットは何でしょう？",
-    "answer": "コントロールジー",
-    "alternativeAnswers": ["こんとろーるじー"],
+    "answer": "Ctrl+G",
+    "explanation": "長いプロンプトを外部エディタで編集。複雑な指示を書くときに便利。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-021",
-    "text": "Claude Code でファイルの内容を読み取るための基本ツールは何でしょう？",
-    "answer": "リード",
-    "alternativeAnswers": ["りーど"],
+    "text": "Claude Code でファイルの中身を確認する（画像や PDF も対応）ための基本ツールは何でしょう？",
+    "answer": "Read",
+    "explanation": "cat より安全で高機能。テキスト以外のファイルも処理できる。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-022",
-    "text": "Claude Code でファイルを新規作成または上書きするための基本ツールは何でしょう？",
-    "answer": "ライト",
-    "alternativeAnswers": ["らいと"],
+    "text": "Claude Code でファイル全体を一から作成・出力するための基本ツールは何でしょう？",
+    "answer": "Write",
+    "explanation": "新規ファイル作成や全面的な内容差し替えに使う。部分修正には向かない。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-023",
-    "text": "Claude Code で既存ファイルの一部を置換編集するための基本ツールは何でしょう？",
-    "answer": "エディット",
-    "alternativeAnswers": ["えでぃっと"],
+    "text": "Claude Code で既存ファイルの特定箇所だけを差し替える（差分が明確になる）ための基本ツールは何でしょう？",
+    "answer": "Edit",
+    "explanation": "変更箇所が明確で、レビューしやすい。部分的な修正に最適。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-024",
     "text": "Claude Code でシェルコマンドを実行するための基本ツールは何でしょう？",
-    "answer": "バッシュ",
-    "alternativeAnswers": ["ばっしゅ"],
+    "answer": "Bash",
+    "explanation": "ターミナルコマンドを実行。git、npm、docker など何でも動かせる。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-025",
-    "text": "Claude Code でグロブパターンを使ってファイルを検索するツールは何でしょう？",
-    "answer": "グロブ",
-    "alternativeAnswers": ["ぐろぶ"],
+    "text": "Claude Code で「**/*.ts」のようなワイルドカードパターンでファイルを検索するツールは何でしょう？",
+    "answer": "Glob",
+    "explanation": "find より高速。ファイル名のパターンマッチングに特化。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-026",
     "text": "Claude Code で正規表現を使ってファイル内容を検索するツールは何でしょう？",
-    "answer": "グレップ",
-    "alternativeAnswers": ["ぐれっぷ"],
+    "answer": "Grep",
+    "explanation": "ripgrep ベースの高速検索。コード内のパターンを素早く見つける。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-027",
-    "text": "Claude Code で Web コンテンツを取得・処理するツールは何でしょう？",
-    "answer": "ウェブフェッチ",
-    "alternativeAnswers": ["うぇぶふぇっち"],
+    "text": "Claude Code で URL を指定してページ内容を取得・分析するツールは何でしょう？",
+    "answer": "WebFetch",
+    "explanation": "ドキュメントや API レスポンスの確認に便利。HTML を Markdown に変換して処理。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-028",
-    "text": "Claude Code で Web 検索を行うツールは何でしょう？",
-    "answer": "ウェブサーチ",
-    "alternativeAnswers": ["うぇぶさーち"],
+    "text": "Claude Code でインターネット上の最新情報を調べるツールは何でしょう？",
+    "answer": "WebSearch",
+    "explanation": "ドキュメントやベストプラクティスを検索。知識のカットオフを超えた情報も取得可能。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-029",
     "text": "Claude Code でサブエージェントを起動するためのツールは何でしょう？",
-    "answer": "タスク",
-    "alternativeAnswers": ["たすく"],
+    "answer": "Task",
+    "explanation": "別の Claude インスタンスを起動。並列処理や専門タスクの委譲に使う。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-030",
     "text": "Claude Code でユーザーに質問して確認を取るためのツールは何でしょう？",
-    "answer": "アスクユーザークエスチョン",
-    "alternativeAnswers": ["あすくゆーざーくえすちょん"],
+    "answer": "AskUserQuestion",
+    "explanation": "ユーザーに選択肢を提示して回答を得る。曖昧な指示を明確化するときに。",
     "genre": "tool",
+    "chapter": "1-3",
     "difficulty": "A"
   },
   {
     "id": "CC-P1-031",
-    "text": "Claude Code で最後のアシスタント応答をクリップボードにコピーするスラッシュコマンドは何でしょう？",
-    "answer": "コピー",
-    "alternativeAnswers": ["こぴー"],
+    "text": "Claude Code で直前の Claude の応答をクリップボードに転送するスラッシュコマンドは何でしょう？",
+    "answer": "/copy",
+    "explanation": "生成されたコードやテキストを他の場所で使いたいときに便利。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-032",
-    "text": "Claude Code でバックグラウンドタスクをリスト表示するスラッシュコマンドは何でしょう？",
-    "answer": "タスクス",
-    "alternativeAnswers": ["たすくす"],
+    "text": "Claude Code で裏で動いている処理の一覧を確認・管理するスラッシュコマンドは何でしょう？",
+    "answer": "/tasks",
+    "explanation": "バックグラウンド実行中の処理を確認。進捗管理に使う。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-033",
-    "text": "Claude Code でカラーテーマを変更するスラッシュコマンドは何でしょう？",
-    "answer": "テーマ",
-    "alternativeAnswers": ["てーま"],
+    "text": "Claude Code でターミナルの配色をダーク・ライトなど好みに合わせて変えるスラッシュコマンドは何でしょう？",
+    "answer": "/theme",
+    "explanation": "見た目をカスタマイズ。目に優しい配色を選べる。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "C"
   },
   {
     "id": "CC-P1-034",
     "text": "Claude Code で Vim スタイル編集を有効化するスラッシュコマンドは何でしょう？",
-    "answer": "ビム",
-    "alternativeAnswers": ["びむ"],
+    "answer": "/vim",
+    "explanation": "入力欄で Vim キーバインドを使えるようになる。Vim ユーザー向け。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-035",
-    "text": "Claude Code で現在の TODO 項目をリスト表示するスラッシュコマンドは何でしょう？",
-    "answer": "トゥドゥーズ",
-    "alternativeAnswers": ["とぅどぅーず", "トゥードゥーズ"],
+    "text": "Claude Code でやることリスト（タスク一覧）を表示するスラッシュコマンドは何でしょう？",
+    "answer": "/todos",
+    "explanation": "計画的に作業を進めるときに使う。残タスクを確認できる。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-036",
-    "text": "Claude Code でインストールの状態をチェックするスラッシュコマンドは何でしょう？",
-    "answer": "ドクター",
-    "alternativeAnswers": ["どくたー"],
+    "text": "Claude Code で環境設定や依存関係の問題を診断するスラッシュコマンドは何でしょう？",
+    "answer": "/doctor",
+    "explanation": "トラブルシューティングの第一歩。何かおかしいときにまず実行。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-037",
     "text": "Claude Code で日次使用状況やセッション履歴を視覚化するスラッシュコマンドは何でしょう？",
-    "answer": "スタッツ",
-    "alternativeAnswers": ["すたっつ"],
+    "answer": "/stats",
+    "explanation": "使用統計をグラフィカルに表示。どれだけ使ったか一目で分かる。",
     "genre": "slash-command",
+    "chapter": "1-1",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-038",
     "text": "Claude Code で権限モードを切り替えるキーボードショートカットは何でしょう？",
-    "answer": "シフトタブ",
-    "alternativeAnswers": ["しふとたぶ"],
+    "answer": "Shift+Tab",
+    "explanation": "権限レベルを切り替え。自動承認と確認モードを行き来できる。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-039",
     "text": "Claude Code でタスクをバックグラウンドで実行するキーボードショートカットは何でしょう？",
-    "answer": "コントロールビー",
-    "alternativeAnswers": ["こんとろーるびー"],
+    "answer": "Ctrl+B",
+    "explanation": "現在のタスクをバックグラウンドに送り、別の作業ができる。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
   },
   {
     "id": "CC-P1-040",
     "text": "Claude Code でタスクリストを切り替えるキーボードショートカットは何でしょう？",
-    "answer": "コントロールティー",
-    "alternativeAnswers": ["こんとろーるてぃー"],
+    "answer": "Ctrl+T",
+    "explanation": "TODO リストの表示/非表示を切り替え。作業状況を確認しながら進める。",
     "genre": "shortcut",
+    "chapter": "1-2",
     "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-001",
+    "text": "Claude Code で外部ツールやサービスとの接続設定を記述する JSON ファイル名は？",
+    "answer": ".mcp.json",
+    "explanation": "プロジェクトルートに置くとプロジェクト単位の MCP 設定になる。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-002",
+    "text": "MCP サーバーとの通信方式のうち、標準入出力を使うものは？",
+    "answer": "stdio",
+    "explanation": "ローカルプロセスとして起動するサーバーで最もよく使われる。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-003",
+    "text": "すべてのプロジェクトで共通して使える MCP 設定を保存するファイルは？",
+    "answer": "~/.claude.json",
+    "explanation": "ホームディレクトリに配置するグローバル設定。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-004",
+    "text": "MCP サーバーを CLI から追加するコマンドは？",
+    "answer": "claude mcp add",
+    "explanation": "サーバー名・コマンド・引数を指定して登録する。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-005",
+    "text": "MCP の正式名称は何でしょう？",
+    "answer": "Model Context Protocol",
+    "explanation": "Anthropic がオープンソースとして Protocol を公開。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-006",
+    "text": "登録済みの MCP サーバー一覧を確認するコマンドは？",
+    "answer": "claude mcp list",
+    "explanation": "設定されているサーバーの名前と状態を表示。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-007",
+    "text": "MCP 設定で起動するプログラムのパスを指定するフィールドは？",
+    "answer": "command",
+    "explanation": "\"npx\" や \"python\" などの実行コマンドを指定する。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-008",
+    "text": "MCP サーバーが Claude Code に提供する拡張機能の単位は？",
+    "answer": "tools",
+    "explanation": "サーバーごとに複数のツールを公開できる。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-009",
+    "text": "MCP 設定で HTTP ベースのサーバーと通信する方式は？",
+    "answer": "sse",
+    "explanation": "Server-Sent Events を使ったリモートサーバー接続。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-010",
+    "text": "MCP サーバーを特定のプロジェクトだけで使いたい場合、設定ファイルはどこに置く？",
+    "answer": "プロジェクトルート",
+    "explanation": ".mcp.json をプロジェクトのルートディレクトリに配置。",
+    "genre": "mcp",
+    "chapter": "2-1",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-011",
+    "text": "Claude Code でツールが実行される前に自動的に動くフックイベントは？",
+    "answer": "PreToolUse",
+    "explanation": "Bash 実行前のバリデーションなどに活用できる。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-012",
+    "text": "Claude Code でツールの実行が完了した後に発火するフックイベントは？",
+    "answer": "PostToolUse",
+    "explanation": "実行結果のログ記録や後処理に使う。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-013",
+    "text": "Claude の応答が完了して停止する時に発火するフックイベントは？",
+    "answer": "Stop",
+    "explanation": "応答後の自動処理やログ記録に活用。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-014",
+    "text": "フックの設定を記述するファイルは？",
+    "answer": ".claude/settings.json",
+    "explanation": "hooks フィールドにイベントごとの設定を記述。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-015",
+    "text": "フックで特定のツール名だけを対象にするフィールドは？",
+    "answer": "matcher",
+    "explanation": "\"Bash\" や \"Write\" など対象ツール名を指定。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-016",
+    "text": "フックのシェルコマンドが終了コード 2 を返すと何が起きる？",
+    "answer": "ツール実行がブロックされる",
+    "explanation": "危険な操作の防止に使えるセキュリティ機能。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-017",
+    "text": "Claude Code のセッション開始時に自動実行されるフックイベントは？",
+    "answer": "SessionStart",
+    "explanation": "環境変数の設定や初期化処理に活用。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-018",
+    "text": "ユーザーがプロンプトを送信した直後に発火するフックイベントは？",
+    "answer": "UserPromptSubmit",
+    "explanation": "入力内容のバリデーションや前処理に使う。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-019",
+    "text": "Task ツールで起動したサブエージェントが終了した時に発火するフックは？",
+    "answer": "SubagentStop",
+    "explanation": "サブエージェントの結果を自動処理できる。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-020",
+    "text": "コンテキスト圧縮の直前に実行されるフックイベントは？",
+    "answer": "PreCompact",
+    "explanation": "圧縮前にカスタム要約ロジックを挟める。",
+    "genre": "hooks",
+    "chapter": "2-2",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-021",
+    "text": "Claude Code にプロジェクト固有の指示やルールを伝えるファイルは？",
+    "answer": "CLAUDE.md",
+    "explanation": "プロジェクトルートに配置する指示書。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-022",
+    "text": "すべてのプロジェクトに共通する個人設定を Markdown で記述するファイルの場所は？",
+    "answer": "~/CLAUDE.md",
+    "explanation": "ホームディレクトリに置くグローバル指示書。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-023",
+    "text": "長い会話を要約してコンテキストウィンドウを節約するスラッシュコマンドは？",
+    "answer": "/compact",
+    "explanation": "会話の要点を保ちつつトークン使用量を大幅削減。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-024",
+    "text": "どのファイルがどれだけトークンを消費しているか視覚的に確認するスラッシュコマンドは？",
+    "answer": "/context",
+    "explanation": "カラーグリッドでコンテキスト使用状況を表示。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-025",
+    "text": "会話中に気づいたことを CLAUDE.md に永続保存するスラッシュコマンドは？",
+    "answer": "/memory",
+    "explanation": "次回以降のセッションでも参照される。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-026",
+    "text": "権限設定やフック、テーマなどをカスタマイズする設定ファイルは？",
+    "answer": ".claude/settings.json",
+    "explanation": "プロジェクト単位とグローバルの 2 階層がある。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-027",
+    "text": "コンテキストウィンドウが上限に近づくと Claude Code が自動的に行う処理は？",
+    "answer": "自動コンパクション",
+    "explanation": "会話が長くなると自動で要約が走る。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-028",
+    "text": "現在のセッションで使用したトークン数と費用を確認するスラッシュコマンドは？",
+    "answer": "/cost",
+    "explanation": "API 使用量をリアルタイムで把握できる。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-029",
+    "text": "特定のファイルやディレクトリを Claude のアクセス対象から除外する設定ファイルは？",
+    "answer": ".claudeignore",
+    "explanation": ".gitignore と同じ書式でパターン指定。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P2-030",
+    "text": "CLAUDE.md の設定スコープは、プロジェクト・ユーザー、そしてもう 1 つは何？",
+    "answer": "エンタープライズ",
+    "explanation": "組織全体に適用される最上位のスコープ。",
+    "genre": "memory",
+    "chapter": "2-3",
+    "difficulty": "B"
+  },
+  {
+    "id": "CC-P3-001",
+    "text": "Claude Code プラグインの定義ファイル名は？",
+    "answer": "plugin.json",
+    "explanation": "プラグインのメタ情報やコンポーネントを宣言するマニフェスト。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-002",
+    "text": "プラグインで再利用可能な知識や手順を定義するコンポーネントは？",
+    "answer": "skills",
+    "explanation": "スキルファイルにベストプラクティスやガイドを記述。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-003",
+    "text": "プラグインでユーザーがスラッシュで呼び出せる機能を定義するコンポーネントは？",
+    "answer": "commands",
+    "explanation": "/コマンド名 で実行できるカスタムアクション。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-004",
+    "text": "プラグインで自律的にタスクを処理する専門エージェントを定義するコンポーネントは？",
+    "answer": "agents",
+    "explanation": "Task ツールから呼び出される特化型サブエージェント。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-005",
+    "text": "プラグインでツール実行の前後に自動処理を挟むコンポーネントは？",
+    "answer": "hooks",
+    "explanation": "PreToolUse/PostToolUse などのイベントに応じて動作。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-006",
+    "text": "プラグイン内でプラグインのルートパスを参照する変数は？",
+    "answer": "${CLAUDE_PLUGIN_ROOT}",
+    "explanation": "スクリプトやファイルの絶対パス解決に使う。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-007",
+    "text": "プラグインのスキルファイルで使う拡張子は？",
+    "answer": ".md",
+    "explanation": "Markdown 形式でプロンプトや手順を記述。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-008",
+    "text": "プラグインのコマンド定義で引数を宣言するセクションは？",
+    "answer": "YAML frontmatter",
+    "explanation": "ファイル先頭の --- で囲まれたメタデータ領域。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-009",
+    "text": "プラグインをインストールするディレクトリは？",
+    "answer": ".claude/plugins/",
+    "explanation": "プロジェクトまたはグローバルに配置。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-010",
+    "text": "プラグインの設定をプロジェクト固有に保存するファイルパターンは？",
+    "answer": ".claude/plugin-name.local.md",
+    "explanation": "YAML frontmatter + Markdown でプラグイン設定を記述。",
+    "genre": "plugin",
+    "chapter": "3-1",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-011",
+    "text": "Claude Code の権限設定で、ツール実行を自動許可するモードは？",
+    "answer": "allowedTools",
+    "explanation": "settings.json の allowedTools 配列で指定。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-012",
+    "text": "Claude Code でBashコマンドの実行を常に許可する設定キーは？",
+    "answer": "Bash(command:*)",
+    "explanation": "ワイルドカードで任意のコマンドを許可。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-013",
+    "text": "プロジェクト単位の設定ファイルのパスは？",
+    "answer": ".claude/settings.json",
+    "explanation": "プロジェクトルートの.claude/ディレクトリ配下。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-014",
+    "text": "ユーザーのグローバル設定ファイルのパスは？",
+    "answer": "~/.claude/settings.json",
+    "explanation": "ホームディレクトリ配下のグローバル設定。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-015",
+    "text": "Claude Code で使用するモデルを指定するCLIオプションは？",
+    "answer": "--model",
+    "explanation": "claude --model sonnet のように指定。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-016",
+    "text": "Claude Code を非対話モードで実行するCLIオプションは？",
+    "answer": "--print",
+    "explanation": "パイプラインやスクリプトから使う時に便利。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-017",
+    "text": "設定の優先順位で最も高いのは？",
+    "answer": "プロジェクト設定",
+    "explanation": "プロジェクト > ユーザー > エンタープライズ の順。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-018",
+    "text": "Claude Code の出力形式をJSONにするCLIオプションは？",
+    "answer": "--output-format json",
+    "explanation": "プログラムからの結果パースに使用。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-019",
+    "text": "Claude Code でシステムプロンプトを追加するCLIオプションは？",
+    "answer": "--system-prompt",
+    "explanation": "カスタム指示をCLI引数で渡せる。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-020",
+    "text": "セッションを復元して続きから作業するCLIオプションは？",
+    "answer": "--resume",
+    "explanation": "前回のセッションIDを指定して再開。",
+    "genre": "settings",
+    "chapter": "3-2",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-021",
+    "text": "Claude Code の Agent SDK のnpmパッケージ名は？",
+    "answer": "@anthropic-ai/claude-code-sdk",
+    "explanation": "TypeScript/JavaScript から Claude Code を呼び出せる。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-022",
+    "text": "Agent SDK でセッションを開始するメイン関数は？",
+    "answer": "claude",
+    "explanation": "import { claude } from '@anthropic-ai/claude-code-sdk'",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-023",
+    "text": "Agent SDK で会話のやり取りをストリーミングで受け取る方式は？",
+    "answer": "AsyncIterator",
+    "explanation": "for await...of ループで逐次処理。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-024",
+    "text": "Agent SDK でツール実行結果を含むメッセージのタイプは？",
+    "answer": "tool_result",
+    "explanation": "ツールの実行結果を示すメッセージ種別。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-025",
+    "text": "Agent SDK でセッションに初期プロンプトを渡すパラメータは？",
+    "answer": "prompt",
+    "explanation": "claude({ prompt: \"...\" }) の形式。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-026",
+    "text": "Agent SDK でファイルの読み書きを許可するパラメータは？",
+    "answer": "permissions",
+    "explanation": "実行時の権限を細かく制御できる。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-027",
+    "text": "Agent SDK の実行結果でテキスト応答を取得するフィールドは？",
+    "answer": "text",
+    "explanation": "最終的なアシスタントの応答テキスト。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-028",
+    "text": "Agent SDK でCLIと同じ設定ファイルを読み込む機能は？",
+    "answer": "cwd",
+    "explanation": "作業ディレクトリを指定してCLAUDE.md等を読み込む。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-029",
+    "text": "Agent SDK を使ってカスタムCLIツールを構築するパターンは？",
+    "answer": "ラッパーCLI",
+    "explanation": "claude-code-sdk を組み込んだ独自コマンド。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
+  },
+  {
+    "id": "CC-P3-030",
+    "text": "Agent SDK でサブプロセスとして Claude Code を起動する利点は？",
+    "answer": "プロセス分離",
+    "explanation": "メインアプリとは別プロセスで安全に実行。",
+    "genre": "agent-sdk",
+    "chapter": "3-3",
+    "difficulty": "A"
   }
 ]

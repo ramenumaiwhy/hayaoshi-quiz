@@ -2,9 +2,10 @@ import type { Category } from '../types';
 
 type Props = {
   onSelect: (category: Category) => void;
+  onBattle: () => void;
 };
 
-export const CategorySelect = ({ onSelect }: Props) => {
+export const CategorySelect = ({ onSelect, onBattle }: Props) => {
   return (
     <div style={styles.container}>
       <div style={styles.title}>カテゴリを選択</div>
@@ -32,6 +33,12 @@ export const CategorySelect = ({ onSelect }: Props) => {
             <br />
             ツールの使い方を学ぼう！
           </div>
+        </button>
+      </div>
+      <div style={styles.battleSection}>
+        <button onClick={onBattle} style={styles.battleButton}>
+          <span style={styles.battleIcon}>⚔️</span>
+          <span style={styles.battleLabel}>友達と対戦</span>
         </button>
       </div>
     </div>
@@ -91,5 +98,28 @@ const styles: Record<string, React.CSSProperties> = {
     color: 'var(--text-secondary)',
     textAlign: 'center',
     lineHeight: 1.5,
+  },
+  battleSection: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  battleButton: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    padding: '16px 32px',
+    backgroundColor: 'var(--bg-secondary)',
+    border: '2px solid var(--border)',
+    borderRadius: '14px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+  },
+  battleIcon: {
+    fontSize: '24px',
+  },
+  battleLabel: {
+    fontSize: '16px',
+    fontWeight: 700,
+    color: 'var(--text-primary)',
   },
 };

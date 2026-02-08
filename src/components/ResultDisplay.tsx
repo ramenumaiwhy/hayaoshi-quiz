@@ -3,6 +3,7 @@ type Props = {
   correctAnswer: string;
   answerReading: string;
   userAnswer: string;
+  explanation?: string;
 };
 
 export const ResultDisplay = ({
@@ -10,6 +11,7 @@ export const ResultDisplay = ({
   correctAnswer,
   answerReading,
   userAnswer,
+  explanation,
 }: Props) => {
   return (
     <div style={styles.container}>
@@ -24,6 +26,7 @@ export const ResultDisplay = ({
       >
         {isCorrect ? '🎉 正解！' : '😢 不正解...'}
       </div>
+
       <div style={styles.answerSection}>
         {!isCorrect && (
           <>
@@ -37,6 +40,13 @@ export const ResultDisplay = ({
         <div style={styles.correctAnswer}>{correctAnswer}</div>
         {correctAnswer !== answerReading && (
           <div style={styles.reading}>（{answerReading}）</div>
+        )}
+
+        {explanation && (
+          <>
+            <div style={{ ...styles.label, marginTop: '16px' }}>解説</div>
+            <div style={styles.explanation}>{explanation}</div>
+          </>
         )}
       </div>
     </div>
@@ -84,5 +94,10 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: '16px',
     color: 'var(--text-secondary)',
     marginTop: '4px',
+  },
+  explanation: {
+    fontSize: '15px',
+    color: 'var(--text-primary)',
+    lineHeight: 1.6,
   },
 };

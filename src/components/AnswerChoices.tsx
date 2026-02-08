@@ -1,25 +1,35 @@
 type Props = {
   choices: string[];
   currentAnswer: string;
-  onSelect: (char: string) => void;
+  onSelect: (choice: string) => void;
+  isWordMode?: boolean;
 };
 
-export const AnswerChoices = ({ choices, currentAnswer, onSelect }: Props) => {
+export const AnswerChoices = ({
+  choices,
+  currentAnswer,
+  onSelect,
+  isWordMode = false,
+}: Props) => {
   return (
     <div style={styles.container}>
-      <div style={styles.label}>あなたの回答</div>
-      <div style={styles.currentAnswer}>
-        {currentAnswer || '\u3000'}
-        <span style={styles.cursor}>_</span>
-      </div>
-      <div style={styles.choices}>
-        {choices.map((char, index) => (
+      {!isWordMode && (
+        <>
+          <div style={styles.label}>あなたの回答</div>
+          <div style={styles.currentAnswer}>
+            {currentAnswer || '\u3000'}
+            <span style={styles.cursor}>_</span>
+          </div>
+        </>
+      )}
+      <div style={isWordMode ? styles.wordChoices : styles.charChoices}>
+        {choices.map((choice, index) => (
           <button
-            key={`${char}-${index}`}
-            onClick={() => onSelect(char)}
-            style={styles.choiceButton}
+            key={`${choice}-${index}`}
+            onClick={() => onSelect(choice)}
+            style={isWordMode ? styles.wordButton : styles.charButton}
           >
-            {char}
+            {choice}
           </button>
         ))}
       </div>
@@ -51,14 +61,14 @@ const styles: Record<string, React.CSSProperties> = {
     animation: 'blink 1s infinite',
     fontWeight: 400,
   },
-  choices: {
+  charChoices: {
     display: 'grid',
     gridTemplateColumns: 'repeat(2, 1fr)',
     gap: '16px',
     maxWidth: '360px',
     margin: '0 auto',
   },
-  choiceButton: {
+  charButton: {
     fontSize: '32px',
     fontWeight: 700,
     padding: '24px',
@@ -68,5 +78,25 @@ const styles: Record<string, React.CSSProperties> = {
     cursor: 'pointer',
     transition: 'all 0.15s ease',
     color: 'var(--text-primary)',
+  },
+  wordChoices: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '12px',
+    maxWidth: '500px',
+    margin: '0 auto',
+  },
+  wordButton: {
+    fontSize: '16px',
+    fontWeight: 600,
+    padding: '20px 16px',
+    backgroundColor: 'var(--choice-bg)',
+    border: '2px solid var(--border)',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    color: 'var(--text-primary)',
+    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace',
+    wordBreak: 'break-word',
   },
 };

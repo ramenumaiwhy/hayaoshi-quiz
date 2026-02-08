@@ -7,21 +7,35 @@
  *
  * 使い方:
  *   curl -O https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_01/train_questions.json
- *   bun scripts/convert-aio.ts train_questions.json --limit=100
+ *   bun scripts/convert-aio.ts train_questions.json
  */
 
 import { readFileSync, writeFileSync } from 'fs';
+import path from 'path';
 import type { Question, Genre, Difficulty } from '../src/types';
 
-// AI王のデータ形式
+// kuromoji を動的にインポート（CommonJS モジュール）
+// @ts-expect-error kuromoji has no type declarations
+import kuromoji from 'kuromoji';
+
 type AioQuestion = {
   qid: string;
   question: string;
   answer_entity: string;
   answer_candidates?: string[];
+  original_answer?: string;
 };
 
-const GENRE_KEYWORDS: Record<Genre, string[]> = {
+type KuromojiToken = {
+  reading: string;
+  surface_form: string;
+};
+
+type KuromojiTokenizer = {
+  tokenize: (text: string) => KuromojiToken[];
+};
+
+const GENRE_KEYWORDS: Partial<Record<Genre, string[]>> = {
   language: ['ことわざ', '四字熟語', '慣用句', '言葉', '漢字', '俳句', '短歌', '文学', '小説', '作家'],
   entertainment: ['漫画', 'アニメ', '映画', 'ドラマ', '音楽', 'ゲーム', '芸能', '歌手', 'バンド', 'アイドル'],
   food: ['料理', '食べ物', '野菜', '果物', '飲み物', '酒', 'スイーツ', '魚', '肉', 'ラーメン'],
@@ -32,7 +46,7 @@ const GENRE_KEYWORDS: Record<Genre, string[]> = {
 
 const guessGenre = (question: string): Genre => {
   for (const [genre, keywords] of Object.entries(GENRE_KEYWORDS)) {
-    if (keywords.some((kw) => question.includes(kw))) {
+    if (keywords!.some((kw: string) => question.includes(kw))) {
       return genre as Genre;
     }
   }
@@ -46,17 +60,39 @@ const guessDifficulty = (question: string): Difficulty => {
   return 'C';
 };
 
-// ひらがな/カタカナかどうか判定
-const isKana = (str: string): boolean => /^[\u3041-\u3096\u30A1-\u30FC]+$/.test(str);
-
-// 漢字を含むかどうか
 const hasKanji = (str: string): boolean => /[\u4E00-\u9FAF]/.test(str);
 
-const convert = (inputPath: string, outputPath: string, limit?: number) => {
+// カタカナ→ひらがな変換
+const katakanaToHiragana = (str: string): string =>
+  str.replace(/[\u30A1-\u30F6]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+
+// kuromoji で漢字→カタカナ読みを取得
+const toReading = (tokenizer: KuromojiTokenizer, text: string): string => {
+  const tokens = tokenizer.tokenize(text);
+  return tokens.map((t: KuromojiToken) => t.reading || t.surface_form).join('');
+};
+
+// kuromoji tokenizer を初期化
+const initTokenizer = (): Promise<KuromojiTokenizer> =>
+  new Promise((resolve, reject) => {
+    kuromoji
+      .builder({ dicPath: path.join('node_modules', 'kuromoji', 'dict') })
+      .build((err: Error | null, tokenizer: KuromojiTokenizer) => {
+        if (err) reject(err);
+        else resolve(tokenizer);
+      });
+  });
+
+const convert = async (inputPath: string, outputPath: string, limit?: number) => {
+  console.log('kuromoji 辞書を読み込み中...');
+  const tokenizer = await initTokenizer();
+  console.log('辞書読み込み完了');
+
   const content = readFileSync(inputPath, 'utf-8');
   const lines = content.trim().split('\n');
 
   const questions: Question[] = [];
+  let skipped = 0;
 
   for (const line of lines) {
     if (limit && questions.length >= limit) break;
@@ -67,18 +103,35 @@ const convert = (inputPath: string, outputPath: string, limit?: number) => {
       if (!aio.question || !aio.answer_entity) continue;
 
       const answer = aio.answer_entity;
+      const alternativeAnswers: string[] = [];
 
-      // ひらがな/カタカナの読みがなければ、漢字を含む答えはスキップ
-      // （4択UIでひらがな/カタカナが必要なため）
-      if (hasKanji(answer) && !isKana(answer)) {
-        // TODO: 将来的にはふりがな辞書を使って読みを生成
-        continue;
+      if (hasKanji(answer)) {
+        // kuromoji でカタカナ読みを生成
+        const katakana = toReading(tokenizer, answer);
+        const hiragana = katakanaToHiragana(katakana);
+
+        // 読みが元の文字列と同じ（変換できなかった）場合はスキップ
+        if (katakana === answer) {
+          skipped++;
+          continue;
+        }
+
+        alternativeAnswers.push(katakana);
+        if (hiragana !== katakana) {
+          alternativeAnswers.push(hiragana);
+        }
+      }
+
+      // original_answer が answer_entity と異なる場合、alternativeAnswers に追加
+      if (aio.original_answer && aio.original_answer !== answer && !alternativeAnswers.includes(aio.original_answer)) {
+        alternativeAnswers.push(aio.original_answer);
       }
 
       const question: Question = {
         id: aio.qid || `aio-${questions.length + 1}`,
         text: aio.question,
-        answer: answer,
+        answer,
+        ...(alternativeAnswers.length > 0 ? { alternativeAnswers } : {}),
         genre: guessGenre(aio.question),
         difficulty: guessDifficulty(aio.question),
       };
@@ -90,7 +143,7 @@ const convert = (inputPath: string, outputPath: string, limit?: number) => {
   }
 
   writeFileSync(outputPath, JSON.stringify(questions, null, 2));
-  console.log(`Converted ${questions.length} questions to ${outputPath}`);
+  console.log(`Converted ${questions.length} questions (skipped ${skipped}) to ${outputPath}`);
 };
 
 // CLI
@@ -101,7 +154,7 @@ if (!inputPath) {
   console.log('');
   console.log('Example:');
   console.log('  curl -O https://jaqket.s3.ap-northeast-1.amazonaws.com/data/aio_01/train_questions.json');
-  console.log('  bun scripts/convert-aio.ts train_questions.json --limit=100');
+  console.log('  bun scripts/convert-aio.ts train_questions.json');
   process.exit(1);
 }
 
