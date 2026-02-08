@@ -44,6 +44,12 @@ const initialState: BattleState = {
   countdownValue: null,
 };
 
+type PresencePayload = {
+  userId: string;
+  displayName: string;
+  role: BattleRole;
+};
+
 type UseBattleReturn = {
   battle: BattleState;
   createRoom: (config: { category: Category; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
@@ -58,6 +64,8 @@ export const useBattle = (user: User | null): UseBattleReturn => {
   const [battle, setBattle] = useState<BattleState>(initialState);
   const channelRef = useRef<RealtimeChannel | null>(null);
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // setupChannel内のクロージャからroleを参照するためのref
+  const roleRef = useRef<BattleRole | null>(null);
 
   const cleanup = useCallback(() => {
     if (countdownTimerRef.current) {
@@ -73,10 +81,11 @@ export const useBattle = (user: User | null): UseBattleReturn => {
   useEffect(() => cleanup, [cleanup]);
 
   const setupChannel = useCallback(
-    (roomCode: string, role: BattleRole, config: BattleRoomConfig | null) => {
+    (roomCode: string, role: BattleRole) => {
       if (!user) return;
 
       cleanup();
+      roleRef.current = role;
 
       const channel = supabase.channel(`battle:${roomCode}`, {
         config: { presence: { key: user.id } },
@@ -84,43 +93,55 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
       channelRef.current = channel;
 
-      // Broadcast: ゲスト参加
-      channel.on('broadcast', { event: 'guest_joined' }, (payload) => {
-        const { userId, displayName } = payload.payload as { userId: string; displayName: string };
-        if (userId === user.id) return;
-        setBattle((prev) => ({
-          ...prev,
-          phase: 'waiting',
-          opponent: {
-            userId,
-            displayName,
-            score: 0,
-            currentQuestion: 0,
-            finished: false,
-            answerTimes: [],
-          },
-        }));
+      // ---- Presence: プレイヤー検出（Broadcastより信頼性が高い） ----
+      channel.on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState<PresencePayload>();
+        const others = Object.entries(state)
+          .flatMap(([_key, presences]) => presences)
+          .filter((p) => p.userId !== user.id);
+
+        if (others.length > 0) {
+          const other = others[0];
+          setBattle((prev) => {
+            if (prev.opponent?.userId === other.userId) return prev;
+            return {
+              ...prev,
+              phase: 'waiting',
+              opponent: {
+                userId: other.userId,
+                displayName: other.displayName,
+                score: 0,
+                currentQuestion: 0,
+                finished: false,
+                answerTimes: [],
+              },
+            };
+          });
+        }
       });
 
-      // Broadcast: ルーム設定（ゲストが受信）
+      // Presence: 切断検知
+      channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        const left = leftPresences as unknown as PresencePayload[];
+        const opponentLeft = left.some((p) => p.userId !== user.id);
+        if (opponentLeft) {
+          setBattle((prev) => {
+            if (prev.phase === 'finished' || prev.phase === 'idle') return prev;
+            return { ...prev, opponent: null, phase: prev.phase === 'playing' ? 'finished' : 'lobby' };
+          });
+        }
+      });
+
+      // ---- Broadcast: ゲーム中イベント ----
+
+      // ルーム設定（ゲストが受信）
       channel.on('broadcast', { event: 'room_config' }, (payload) => {
         const receivedConfig = payload.payload as BattleRoomConfig;
         setBattle((prev) => ({ ...prev, config: receivedConfig }));
       });
 
-      // Broadcast: Ready
-      channel.on('broadcast', { event: 'ready' }, (payload) => {
-        const { userId } = payload.payload as { userId: string };
-        if (userId === user.id) return;
-        setBattle((prev) => {
-          if (!prev.opponent) return prev;
-          return { ...prev, opponent: { ...prev.opponent } };
-        });
-      });
-
-      // Broadcast: カウントダウン開始
-      channel.on('broadcast', { event: 'countdown' }, (payload) => {
-        const { startAt } = payload.payload as { startAt: number };
+      // カウントダウン開始
+      channel.on('broadcast', { event: 'countdown' }, () => {
         setBattle((prev) => ({ ...prev, phase: 'countdown', countdownValue: COUNTDOWN_SECONDS }));
 
         let count = COUNTDOWN_SECONDS;
@@ -140,17 +161,9 @@ export const useBattle = (user: User | null): UseBattleReturn => {
             setBattle((prev) => ({ ...prev, countdownValue: count }));
           }
         }, 1000);
-
-        // startAt までの時間差を補正（ネットワーク遅延対策）
-        const delay = startAt - Date.now();
-        if (delay > 0 && delay < 5000) {
-          setTimeout(() => {
-            // タイマーはすでに走っているので追加処理不要
-          }, delay);
-        }
       });
 
-      // Broadcast: 相手の回答
+      // 相手の回答
       channel.on('broadcast', { event: 'answer' }, (payload) => {
         const { userId, questionIndex, isCorrect, answerTime } = payload.payload as {
           userId: string;
@@ -175,7 +188,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         });
       });
 
-      // Broadcast: 相手が全問終了
+      // 相手が全問終了
       channel.on('broadcast', { event: 'battle_finished' }, (payload) => {
         const { userId, score, answerTimes } = payload.payload as {
           userId: string;
@@ -195,31 +208,13 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         });
       });
 
-      // Presence: 切断検知
-      channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        const left = leftPresences as Array<{ userId?: string }>;
-        const opponentLeft = left.some(
-          (p) => p.userId && p.userId !== user.id
-        );
-        if (opponentLeft) {
-          setBattle((prev) => {
-            if (prev.phase === 'finished') return prev;
-            return { ...prev, phase: 'finished' };
-          });
-        }
-      });
-
       channel.subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          await channel.track({ userId: user.id, displayName: user.displayName });
-
-          if (role === 'guest' && config) {
-            await channel.send({
-              type: 'broadcast',
-              event: 'guest_joined',
-              payload: { userId: user.id, displayName: user.displayName },
-            });
-          }
+          await channel.track({
+            userId: user.id,
+            displayName: user.displayName,
+            role: roleRef.current ?? role,
+          });
         }
       });
     },
@@ -247,7 +242,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         countdownValue: null,
       });
 
-      setupChannel(roomCode, 'host', config);
+      setupChannel(roomCode, 'host');
     },
     [user, setupChannel]
   );
@@ -267,7 +262,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         countdownValue: null,
       });
 
-      setupChannel(roomCode, 'guest', null);
+      setupChannel(roomCode, 'guest');
     },
     [user, setupChannel]
   );
@@ -277,19 +272,19 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
     const channel = channelRef.current;
 
-    // ホストはゲストにconfig送信 → countdown開始
     if (battle.role === 'host') {
+      // ゲストにconfig送信
       void channel.send({
         type: 'broadcast',
         event: 'room_config',
         payload: battle.config,
       });
 
-      const startAt = Date.now() + (COUNTDOWN_SECONDS + 1) * 1000;
+      // countdown開始（自分 + 相手）
       void channel.send({
         type: 'broadcast',
         event: 'countdown',
-        payload: { startAt },
+        payload: {},
       });
 
       // ホスト自身もカウントダウン開始
