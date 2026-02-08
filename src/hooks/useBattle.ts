@@ -103,6 +103,29 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
   useEffect(() => cleanup, [cleanup]);
 
+  // カウントダウンを絶対時刻(startAt)ベースで実行
+  const startCountdown = useCallback((startAt: number) => {
+    if (countdownTimerRef.current) {
+      clearInterval(countdownTimerRef.current);
+    }
+
+    const update = () => {
+      const remaining = Math.ceil((startAt - Date.now()) / 1000);
+      if (remaining <= 0) {
+        if (countdownTimerRef.current) {
+          clearInterval(countdownTimerRef.current);
+          countdownTimerRef.current = null;
+        }
+        setBattle((prev) => ({ ...prev, phase: 'playing', countdownValue: null }));
+      } else {
+        setBattle((prev) => ({ ...prev, phase: 'countdown', countdownValue: remaining }));
+      }
+    };
+
+    update();
+    countdownTimerRef.current = setInterval(update, 200);
+  }, []);
+
   const setupChannel = useCallback(
     (roomCode: string, role: BattleRole) => {
       if (!user) return;
@@ -167,27 +190,10 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         });
       });
 
-      // カウントダウン開始
-      channel.on('broadcast', { event: 'countdown' }, () => {
-        setBattle((prev) => ({ ...prev, phase: 'countdown', countdownValue: COUNTDOWN_SECONDS }));
-
-        let count = COUNTDOWN_SECONDS;
-        countdownTimerRef.current = setInterval(() => {
-          count--;
-          if (count <= 0) {
-            if (countdownTimerRef.current) {
-              clearInterval(countdownTimerRef.current);
-              countdownTimerRef.current = null;
-            }
-            setBattle((prev) => ({
-              ...prev,
-              phase: 'playing',
-              countdownValue: null,
-            }));
-          } else {
-            setBattle((prev) => ({ ...prev, countdownValue: count }));
-          }
-        }, 1000);
+      // カウントダウン開始（startAtで同期）
+      channel.on('broadcast', { event: 'countdown' }, (payload) => {
+        const { startAt } = payload.payload as { startAt: number };
+        startCountdown(startAt);
       });
 
       // 相手の回答
@@ -332,30 +338,20 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         payload: battle.config,
       });
 
-      // countdown開始（自分 + 相手）
+      // 両クライアントが同じ時刻にplaying開始するための共通タイムスタンプ
+      const startAt = Date.now() + COUNTDOWN_SECONDS * 1000;
+
+      // countdown開始（ゲストへ送信）
       void channel.send({
         type: 'broadcast',
         event: 'countdown',
-        payload: {},
+        payload: { startAt },
       });
 
-      // ホスト自身もカウントダウン開始
-      setBattle((prev) => ({ ...prev, phase: 'countdown', countdownValue: COUNTDOWN_SECONDS }));
-      let count = COUNTDOWN_SECONDS;
-      countdownTimerRef.current = setInterval(() => {
-        count--;
-        if (count <= 0) {
-          if (countdownTimerRef.current) {
-            clearInterval(countdownTimerRef.current);
-            countdownTimerRef.current = null;
-          }
-          setBattle((prev) => ({ ...prev, phase: 'playing', countdownValue: null }));
-        } else {
-          setBattle((prev) => ({ ...prev, countdownValue: count }));
-        }
-      }, 1000);
+      // ホスト自身もカウントダウン開始（同じstartAt基準）
+      startCountdown(startAt);
     }
-  }, [user, battle.role, battle.config]);
+  }, [user, battle.role, battle.config, startCountdown]);
 
   const reportAnswer = useCallback(
     (questionIndex: number, isCorrect: boolean, answerTime: number) => {
