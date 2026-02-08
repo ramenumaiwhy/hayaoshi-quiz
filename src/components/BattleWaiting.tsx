@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import type { BattleState } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -54,55 +55,75 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
     setWsTestResult(['🔄 テスト開始...']);
     const addLine = (line: string) => setWsTestResult((prev) => [...prev, line]);
 
-    // Test 1: Raw WebSocket
+    const url = import.meta.env.VITE_SUPABASE_URL as string;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+    // Test 1: Raw WebSocket with message inspection
     try {
-      const wsUrl = `wss://okcwmkpobytfzuomrhzr.supabase.co/realtime/v1/websocket?apikey=${import.meta.env.VITE_SUPABASE_ANON_KEY}&vsn=1.0.0`;
+      const wsUrl = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=1.0.0`;
       addLine(`WS URL: ${wsUrl.substring(0, 60)}...`);
       const ws = new WebSocket(wsUrl);
-      ws.onopen = () => { addLine('✅ Raw WebSocket: OPEN'); ws.close(); };
-      ws.onerror = () => addLine('❌ Raw WebSocket: ERROR');
-      ws.onclose = (e) => addLine(`WS close: code=${e.code} reason=${e.reason || 'none'} clean=${e.wasClean}`);
+      ws.onopen = () => {
+        addLine('✅ Raw WS: OPEN');
+        // Send a Phoenix heartbeat to see if server responds
+        ws.send(JSON.stringify([null, null, 'phoenix', 'heartbeat', {}]));
+        addLine('Raw WS: sent heartbeat');
+      };
+      ws.onmessage = (e) => {
+        const data = typeof e.data === 'string' ? e.data.substring(0, 200) : '(binary)';
+        addLine(`Raw WS msg: ${data}`);
+        ws.close();
+      };
+      ws.onerror = () => addLine('❌ Raw WS: ERROR');
+      ws.onclose = (e) => addLine(`Raw WS close: code=${e.code} clean=${e.wasClean}`);
     } catch (e) {
-      addLine(`❌ WebSocket constructor error: ${e instanceof Error ? e.message : String(e)}`);
+      addLine(`❌ WS constructor error: ${e instanceof Error ? e.message : String(e)}`);
     }
 
-    // Test 2: Supabase channel subscribe
-    const testCh = supabase.channel(`ws-test-${Date.now()}`, {
-      config: { presence: { key: 'test' } },
+    // Test 2: Existing singleton client
+    addLine('--- Singleton client ---');
+    const testCh1 = supabase.channel(`singleton-test-${Date.now()}`);
+    let resolved1 = false;
+    testCh1.subscribe((status, err) => {
+      if (resolved1) return;
+      addLine(`Singleton: ${status}${err ? ` (${String(err)})` : ''}`);
+      if (status === 'SUBSCRIBED') { resolved1 = true; supabase.removeChannel(testCh1); }
+      if (status === 'TIMED_OUT') { resolved1 = true; supabase.removeChannel(testCh1); }
     });
-    let resolved = false;
-    testCh.subscribe((status, err) => {
-      if (resolved) return;
-      addLine(`Supabase channel: ${status}${err ? ` (${err.message})` : ''}`);
+
+    // Test 3: FRESH client (key test!)
+    addLine('--- Fresh client ---');
+    const freshClient = createClient(url, key);
+    const testCh2 = freshClient.channel(`fresh-test-${Date.now()}`);
+    let resolved2 = false;
+    testCh2.subscribe((status, err) => {
+      if (resolved2) return;
+      addLine(`Fresh: ${status}${err ? ` (${String(err)})` : ''}`);
       if (status === 'SUBSCRIBED') {
-        resolved = true;
-        addLine('✅ Supabase Realtime: 接続成功！');
-        supabase.removeChannel(testCh);
-      } else if (status === 'CHANNEL_ERROR') {
-        // Don't resolve yet - let it retry once
-      } else if (status === 'TIMED_OUT') {
-        resolved = true;
-        addLine('❌ Supabase Realtime: タイムアウト');
-        supabase.removeChannel(testCh);
+        resolved2 = true;
+        addLine('✅ Fresh client: 成功！');
+        freshClient.removeChannel(testCh2);
+      }
+      if (status === 'TIMED_OUT') {
+        resolved2 = true;
+        addLine('❌ Fresh client: タイムアウト');
+        freshClient.removeChannel(testCh2);
       }
     });
+
     setTimeout(() => {
-      if (!resolved) {
-        addLine('❌ 10秒経過: 接続できず');
-        supabase.removeChannel(testCh);
-      }
+      if (!resolved1) { addLine('❌ Singleton: 10秒タイムアウト'); supabase.removeChannel(testCh1); }
+      if (!resolved2) { addLine('❌ Fresh: 10秒タイムアウト'); freshClient.removeChannel(testCh2); }
     }, 10000);
 
-    // Test 3: Supabase REST (for comparison)
+    // Test 4: REST
     supabase.from('users').select('id').limit(1).then(({ error }) => {
-      addLine(error ? `❌ REST API: ${error.message}` : '✅ REST API: OK');
+      addLine(error ? `❌ REST: ${error.message}` : '✅ REST: OK');
     });
 
-    // Test 4: Show env info
-    addLine(`URL: ${import.meta.env.VITE_SUPABASE_URL}`);
-    addLine(`Key prefix: ${(import.meta.env.VITE_SUPABASE_ANON_KEY as string).substring(0, 20)}...`);
-    addLine(`UserAgent: ${navigator.userAgent.substring(0, 60)}...`);
+    // Test 5: Environment info
     addLine(`Protocol: ${location.protocol} Host: ${location.host}`);
+    addLine(`UA: ${navigator.userAgent.substring(0, 80)}...`);
   }, []);
 
   return (
