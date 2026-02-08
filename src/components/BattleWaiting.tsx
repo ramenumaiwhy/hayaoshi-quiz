@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { BattleState } from '../types';
+import { supabase } from '../lib/supabase';
 
 type Props = {
   battle: BattleState;
@@ -46,7 +47,63 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
   const isHost = battle.role === 'host';
   const hasOpponent = battle.opponent !== null;
   const [showDebug, setShowDebug] = useState(false);
+  const [wsTestResult, setWsTestResult] = useState<string[]>([]);
   const logs = useBattleLogs();
+
+  const runWsTest = useCallback(() => {
+    setWsTestResult(['🔄 テスト開始...']);
+    const addLine = (line: string) => setWsTestResult((prev) => [...prev, line]);
+
+    // Test 1: Raw WebSocket
+    try {
+      const wsUrl = `wss://okcwmkpobytfzuomrhzr.supabase.co/realtime/v1/websocket?apikey=${import.meta.env.VITE_SUPABASE_ANON_KEY}&vsn=1.0.0`;
+      addLine(`WS URL: ${wsUrl.substring(0, 60)}...`);
+      const ws = new WebSocket(wsUrl);
+      ws.onopen = () => { addLine('✅ Raw WebSocket: OPEN'); ws.close(); };
+      ws.onerror = () => addLine('❌ Raw WebSocket: ERROR');
+      ws.onclose = (e) => addLine(`WS close: code=${e.code} reason=${e.reason || 'none'} clean=${e.wasClean}`);
+    } catch (e) {
+      addLine(`❌ WebSocket constructor error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    // Test 2: Supabase channel subscribe
+    const testCh = supabase.channel(`ws-test-${Date.now()}`, {
+      config: { presence: { key: 'test' } },
+    });
+    let resolved = false;
+    testCh.subscribe((status, err) => {
+      if (resolved) return;
+      addLine(`Supabase channel: ${status}${err ? ` (${err.message})` : ''}`);
+      if (status === 'SUBSCRIBED') {
+        resolved = true;
+        addLine('✅ Supabase Realtime: 接続成功！');
+        supabase.removeChannel(testCh);
+      } else if (status === 'CHANNEL_ERROR') {
+        // Don't resolve yet - let it retry once
+      } else if (status === 'TIMED_OUT') {
+        resolved = true;
+        addLine('❌ Supabase Realtime: タイムアウト');
+        supabase.removeChannel(testCh);
+      }
+    });
+    setTimeout(() => {
+      if (!resolved) {
+        addLine('❌ 10秒経過: 接続できず');
+        supabase.removeChannel(testCh);
+      }
+    }, 10000);
+
+    // Test 3: Supabase REST (for comparison)
+    supabase.from('users').select('id').limit(1).then(({ error }) => {
+      addLine(error ? `❌ REST API: ${error.message}` : '✅ REST API: OK');
+    });
+
+    // Test 4: Show env info
+    addLine(`URL: ${import.meta.env.VITE_SUPABASE_URL}`);
+    addLine(`Key prefix: ${(import.meta.env.VITE_SUPABASE_ANON_KEY as string).substring(0, 20)}...`);
+    addLine(`UserAgent: ${navigator.userAgent.substring(0, 60)}...`);
+    addLine(`Protocol: ${location.protocol} Host: ${location.host}`);
+  }, []);
 
   return (
     <div style={styles.container}>
@@ -115,6 +172,18 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
             <div>myId: {battle.me?.userId ?? 'null'}</div>
             <div>opponent: {battle.opponent ? `${battle.opponent.displayName} (${battle.opponent.userId})` : 'null'}</div>
           </div>
+          <div style={{ marginBottom: '8px' }}>
+            <button onClick={runWsTest} style={{ ...styles.debugButton, color: '#ff6b6b', borderColor: '#ff6b6b' }}>
+              🧪 WebSocket接続テスト
+            </button>
+          </div>
+          {wsTestResult.length > 0 && (
+            <div style={{ ...styles.debugLogs, marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #333' }}>
+              {wsTestResult.map((line, i) => (
+                <div key={i} style={styles.debugLogLine}>{line}</div>
+              ))}
+            </div>
+          )}
           <div style={styles.debugLogs}>
             {logs.length === 0 ? (
               <div style={{ color: 'var(--text-muted)' }}>ログなし（ルーム作成/参加するとログが出ます）</div>
