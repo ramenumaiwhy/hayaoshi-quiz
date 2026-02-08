@@ -17,6 +17,28 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const ROOM_CODE_LENGTH = 6;
 const COUNTDOWN_SECONDS = 3;
+const SESSION_KEY = 'battle_room';
+
+type SavedRoom = {
+  roomCode: string;
+  role: BattleRole;
+  config: BattleRoomConfig | null;
+};
+
+const saveRoom = (data: SavedRoom) => {
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch { /* ignore */ }
+};
+
+const loadRoom = (): SavedRoom | null => {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) as SavedRoom : null;
+  } catch { return null; }
+};
+
+const clearRoom = () => {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
+};
 
 const generateRoomCode = (): string => {
   let code = '';
@@ -138,7 +160,11 @@ export const useBattle = (user: User | null): UseBattleReturn => {
       // ルーム設定（ゲストが受信）
       channel.on('broadcast', { event: 'room_config' }, (payload) => {
         const receivedConfig = payload.payload as BattleRoomConfig;
-        setBattle((prev) => ({ ...prev, config: receivedConfig }));
+        setBattle((prev) => {
+          // ゲストがconfigを受信したらsessionStorageも更新
+          saveRoom({ roomCode, role: roleRef.current ?? role, config: receivedConfig });
+          return { ...prev, config: receivedConfig };
+        });
       });
 
       // カウントダウン開始
@@ -222,6 +248,28 @@ export const useBattle = (user: User | null): UseBattleReturn => {
     [user, cleanup]
   );
 
+  // リロード時にsessionStorageからルーム情報を復元
+  const hasRestoredRef = useRef(false);
+  useEffect(() => {
+    if (hasRestoredRef.current || !user) return;
+    hasRestoredRef.current = true;
+
+    const saved = loadRoom();
+    if (!saved) return;
+
+    setBattle({
+      phase: saved.role === 'host' ? 'lobby' : 'waiting',
+      role: saved.role,
+      roomCode: saved.roomCode,
+      config: saved.config,
+      me: createPlayer(user),
+      opponent: null,
+      countdownValue: null,
+    });
+
+    setupChannel(saved.roomCode, saved.role);
+  }, [user, setupChannel]);
+
   const createRoom = useCallback(
     (params: { category: Category; genre?: GeneralGenre | 'all'; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => {
       if (!user) return;
@@ -244,6 +292,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         countdownValue: null,
       });
 
+      saveRoom({ roomCode, role: 'host', config });
       setupChannel(roomCode, 'host');
     },
     [user, setupChannel]
@@ -264,6 +313,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         countdownValue: null,
       });
 
+      saveRoom({ roomCode, role: 'guest', config: null });
       setupChannel(roomCode, 'guest');
     },
     [user, setupChannel]
@@ -363,6 +413,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
   const leaveBattle = useCallback(() => {
     cleanup();
+    clearRoom();
     setBattle(initialState);
   }, [cleanup]);
 
