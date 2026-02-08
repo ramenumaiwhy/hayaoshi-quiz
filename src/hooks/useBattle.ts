@@ -130,10 +130,15 @@ export const useBattle = (user: User | null): UseBattleReturn => {
     (roomCode: string, role: BattleRole) => {
       if (!user) return;
 
+      console.log(`[Battle] setupChannel: room=${roomCode}, role=${role}, userId=${user.id}`);
+
       cleanup();
       roleRef.current = role;
 
-      const channel = supabase.channel(`battle:${roomCode}`, {
+      const channelName = `battle:${roomCode}`;
+      console.log(`[Battle] Creating channel: ${channelName}`);
+
+      const channel = supabase.channel(channelName, {
         config: { presence: { key: user.id } },
       });
 
@@ -142,14 +147,18 @@ export const useBattle = (user: User | null): UseBattleReturn => {
       // ---- Presence: プレイヤー検出（Broadcastより信頼性が高い） ----
       channel.on('presence', { event: 'sync' }, () => {
         const state = channel.presenceState<PresencePayload>();
+        console.log('[Battle] Presence sync fired. Full state:', JSON.stringify(state));
         const others = Object.entries(state)
           .flatMap(([_key, presences]) => presences)
           .filter((p) => p.userId !== user.id);
+
+        console.log(`[Battle] Others in room: ${others.length}`, others.map((o) => o.userId));
 
         if (others.length > 0) {
           const other = others[0];
           setBattle((prev) => {
             if (prev.opponent?.userId === other.userId) return prev;
+            console.log(`[Battle] Opponent detected: ${other.displayName} (${other.userId})`);
             return {
               ...prev,
               phase: 'waiting',
@@ -166,8 +175,13 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         }
       });
 
+      channel.on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('[Battle] Presence JOIN:', JSON.stringify(newPresences));
+      });
+
       // Presence: 切断検知
       channel.on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        console.log('[Battle] Presence LEAVE:', JSON.stringify(leftPresences));
         const left = leftPresences as unknown as PresencePayload[];
         const opponentLeft = left.some((p) => p.userId !== user.id);
         if (opponentLeft) {
@@ -182,9 +196,9 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
       // ルーム設定（ゲストが受信）
       channel.on('broadcast', { event: 'room_config' }, (payload) => {
+        console.log('[Battle] Broadcast room_config received:', payload.payload);
         const receivedConfig = payload.payload as BattleRoomConfig;
         setBattle((prev) => {
-          // ゲストがconfigを受信したらsessionStorageも更新
           saveRoom({ roomCode, role: roleRef.current ?? role, config: receivedConfig });
           return { ...prev, config: receivedConfig };
         });
@@ -192,6 +206,7 @@ export const useBattle = (user: User | null): UseBattleReturn => {
 
       // カウントダウン開始（startAtで同期）
       channel.on('broadcast', { event: 'countdown' }, (payload) => {
+        console.log('[Battle] Broadcast countdown received:', payload.payload);
         const { startAt } = payload.payload as { startAt: number };
         startCountdown(startAt);
       });
@@ -241,13 +256,26 @@ export const useBattle = (user: User | null): UseBattleReturn => {
         });
       });
 
-      channel.subscribe(async (status) => {
+      channel.subscribe(async (status, err) => {
+        console.log(`[Battle] Channel subscribe status: ${status}`, err ? `error: ${err.message}` : '');
         if (status === 'SUBSCRIBED') {
-          await channel.track({
-            userId: user.id,
-            displayName: user.displayName,
-            role: roleRef.current ?? role,
-          });
+          console.log('[Battle] Channel SUBSCRIBED. Tracking presence...');
+          try {
+            const trackResult = await channel.track({
+              userId: user.id,
+              displayName: user.displayName,
+              role: roleRef.current ?? role,
+            });
+            console.log('[Battle] track() result:', trackResult);
+          } catch (trackErr) {
+            console.error('[Battle] track() FAILED:', trackErr);
+          }
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('[Battle] CHANNEL_ERROR:', err?.message);
+        } else if (status === 'TIMED_OUT') {
+          console.error('[Battle] TIMED_OUT: Realtime server did not respond');
+        } else if (status === 'CLOSED') {
+          console.warn('[Battle] Channel CLOSED unexpectedly');
         }
       });
     },
