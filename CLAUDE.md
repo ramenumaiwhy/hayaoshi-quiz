@@ -135,12 +135,12 @@ bun run test-features.mjs
 - キーボードショートカット（Ctrl+C, Ctrl+D, Esc×2 等）
 - 基本的なツール（Read, Edit, Write, Bash, Grep, Glob 等）
 
-##### Phase 2: 中級操作（未実装）
+##### Phase 2: 中級操作 ✅ 実装済み（30問）
 - MCP サーバー設定
 - hooks の使い方
 - メモリ・コンテキスト管理
 
-##### Phase 3: 上級・開発者向け（未実装）
+##### Phase 3: 上級・開発者向け ✅ 実装済み
 - プラグイン開発（skills, agents, commands）
 - カスタム設定
 - Agent SDK
@@ -158,7 +158,7 @@ bun run test-features.mjs
 #### ~~ソーシャル機能~~ ✅ 実装済み（Supabase）
 - フレンドID（6文字英数字）で友達登録
 - フレンドのベストスコア表示
-- 対戦機能は未実装（将来拡張）
+- ✅ 1v1リアルタイム対戦（Supabase Realtime Broadcast/Presence）
 
 #### ~~問題数選択~~ ✅ 実装済み
 - 10問 / 20問 / 全問 から選択可能
@@ -193,3 +193,6 @@ bun run test-features.mjs
 - ✅ Claude Code 学習 Phase 2（30問: MCP, Hooks, メモリ管理）
 - ✅ ソーシャル機能（フレンドID, フレンド登録, スコア共有）
 - ✅ E2Eテスト（Playwright）
+- ✅ 1v1リアルタイム対戦（Supabase Realtime, seeded shuffle同期）
+- ✅ 難易度フィルタ（S/A/B/C/全難易度）
+- ✅ Vercel自動デプロイ（GitHub連携）
