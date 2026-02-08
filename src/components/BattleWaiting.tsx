@@ -24,8 +24,8 @@ const useBattleLogs = () => {
     const capture = (prefix: string, original: typeof console.log) =>
       (...args: unknown[]) => {
         const msg = args.map((a) => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
-        if (msg.includes('[Battle]')) {
-          setLogs((prev) => [...prev.slice(-30), `${prefix}${msg}`]);
+        if (msg.includes('[Battle]') || msg.includes('[Supabase RT]')) {
+          setLogs((prev) => [...prev.slice(-50), `${prefix}${msg}`]);
         }
         original(...args);
       };

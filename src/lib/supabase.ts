@@ -7,4 +7,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  realtime: {
+    logger: (kind: string, msg: string, data?: unknown) => {
+      console.log(`[Supabase RT] ${kind}: ${msg}`, data ?? '');
+    },
+  },
+});
