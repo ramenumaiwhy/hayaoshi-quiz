@@ -15,6 +15,8 @@ export type Genre =
   | 'settings'      // Claude Code: カスタム設定
   | 'agent-sdk';    // Claude Code: Agent SDK
 
+export type GeneralGenre = 'language' | 'entertainment' | 'food' | 'history' | 'science' | 'sports';
+
 export type ClaudeCodeGenre = 'slash-command' | 'shortcut' | 'tool' | 'mcp' | 'hooks' | 'memory' | 'plugin' | 'settings' | 'agent-sdk';
 
 export type Category = 'general' | 'claude-code';
@@ -105,6 +107,7 @@ export type BattleRole = 'host' | 'guest';
 
 export type BattleRoomConfig = {
   category: Category;
+  genre?: GeneralGenre | 'all';
   difficulty?: Difficulty | 'all';
   chapter?: ChapterId;
   seed: number;

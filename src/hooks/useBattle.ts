@@ -7,6 +7,7 @@ import type {
   BattlePlayer,
   BattleRole,
   Category,
+  GeneralGenre,
   Difficulty,
   ChapterId,
   User,
@@ -52,7 +53,7 @@ type PresencePayload = {
 
 type UseBattleReturn = {
   battle: BattleState;
-  createRoom: (config: { category: Category; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
+  createRoom: (config: { category: Category; genre?: GeneralGenre | 'all'; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
   joinRoom: (code: string) => void;
   setReady: () => void;
   reportAnswer: (questionIndex: number, isCorrect: boolean, answerTime: number) => void;
@@ -222,11 +223,12 @@ export const useBattle = (user: User | null): UseBattleReturn => {
   );
 
   const createRoom = useCallback(
-    (params: { category: Category; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => {
+    (params: { category: Category; genre?: GeneralGenre | 'all'; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => {
       if (!user) return;
       const roomCode = generateRoomCode();
       const config: BattleRoomConfig = {
         category: params.category,
+        genre: params.genre,
         difficulty: params.difficulty,
         chapter: params.chapter,
         seed: generateSeed(),

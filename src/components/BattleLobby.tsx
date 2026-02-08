@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import type { Category, Difficulty, ChapterId } from '../types';
+import type { Category, Difficulty, GeneralGenre, ChapterId } from '../types';
 
 type Props = {
-  onCreateRoom: (config: { category: Category; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
+  onCreateRoom: (config: { category: Category; genre?: GeneralGenre | 'all'; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
   onJoinRoom: (code: string) => void;
   onBack: () => void;
 };
 
-type LobbyStep = 'choose' | 'create_category' | 'create_general' | 'create_claude' | 'join';
+type LobbyStep = 'choose' | 'create_category' | 'create_general_genre' | 'create_general' | 'create_claude' | 'join';
 
 export const BattleLobby = ({ onCreateRoom, onJoinRoom, onBack }: Props) => {
   const [step, setStep] = useState<LobbyStep>('choose');
   const [joinCode, setJoinCode] = useState('');
+  const [selectedGenre, setSelectedGenre] = useState<GeneralGenre | 'all'>('all');
 
   if (step === 'create_category') {
     return (
@@ -21,7 +22,7 @@ export const BattleLobby = ({ onCreateRoom, onJoinRoom, onBack }: Props) => {
           <div style={styles.title}>テーマを選択</div>
         </div>
         <div style={styles.cards}>
-          <button onClick={() => setStep('create_general')} style={styles.card}>
+          <button onClick={() => setStep('create_general_genre')} style={styles.card}>
             <div style={styles.cardIcon}>📚</div>
             <div style={styles.cardTitle}>一般クイズ</div>
           </button>
@@ -29,6 +30,39 @@ export const BattleLobby = ({ onCreateRoom, onJoinRoom, onBack }: Props) => {
             <div style={styles.cardIcon}>🤖</div>
             <div style={styles.cardTitle}>Claude Code</div>
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 'create_general_genre') {
+    const genres: { key: GeneralGenre | 'all'; emoji: string; label: string }[] = [
+      { key: 'language', emoji: '📝', label: 'ことば' },
+      { key: 'history', emoji: '🏛️', label: '歴史' },
+      { key: 'science', emoji: '🔬', label: '科学・自然' },
+      { key: 'entertainment', emoji: '🎬', label: 'エンタメ' },
+      { key: 'sports', emoji: '⚽', label: 'スポーツ' },
+      { key: 'food', emoji: '🍽️', label: '食べ物' },
+      { key: 'all', emoji: '🌈', label: '全ジャンル' },
+    ];
+
+    return (
+      <div style={styles.container}>
+        <div style={styles.header}>
+          <button onClick={() => setStep('create_category')} style={styles.backButton}>← 戻る</button>
+          <div style={styles.title}>ジャンルを選択</div>
+        </div>
+        <div style={styles.list}>
+          {genres.map(({ key, emoji, label }) => (
+            <button
+              key={key}
+              onClick={() => { setSelectedGenre(key); setStep('create_general'); }}
+              style={styles.listItem}
+            >
+              <span style={styles.listEmoji}>{emoji}</span>
+              <span style={styles.listLabel}>{label}</span>
+            </button>
+          ))}
         </div>
       </div>
     );
@@ -46,14 +80,14 @@ export const BattleLobby = ({ onCreateRoom, onJoinRoom, onBack }: Props) => {
     return (
       <div style={styles.container}>
         <div style={styles.header}>
-          <button onClick={() => setStep('create_category')} style={styles.backButton}>← 戻る</button>
+          <button onClick={() => setStep('create_general_genre')} style={styles.backButton}>← 戻る</button>
           <div style={styles.title}>難易度を選択</div>
         </div>
         <div style={styles.list}>
           {difficulties.map(({ key, emoji, label }) => (
             <button
               key={key}
-              onClick={() => onCreateRoom({ category: 'general', difficulty: key })}
+              onClick={() => onCreateRoom({ category: 'general', genre: selectedGenre, difficulty: key })}
               style={styles.listItem}
             >
               <span style={styles.listEmoji}>{emoji}</span>

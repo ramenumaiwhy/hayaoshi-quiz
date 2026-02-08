@@ -60,11 +60,15 @@ async function testSoloModeGeneral() {
     await page.close();
   });
 
-  await test('一般クイズ → 難易度選択 → スタート → 早押しが動作', async () => {
+  await test('一般クイズ → ジャンル選択 → 難易度選択 → スタート → 早押しが動作', async () => {
     const page = await newPage();
     await registerUser(page, 'テスター2');
 
     await page.locator('text=一般クイズ').click();
+    // ジャンル選択
+    await page.locator('text=ジャンルを選択').waitFor();
+    await page.locator('text=全ジャンル').click();
+    // 難易度選択
     await page.locator('text=やさしい').waitFor();
     await page.locator('text=やさしい').click();
 
@@ -112,7 +116,7 @@ async function testBattleMode() {
     await page.close();
   });
 
-  await test('ルーム作成 → テーマ選択 → 難易度選択 → ルームコード表示', async () => {
+  await test('ルーム作成 → テーマ選択 → ジャンル → 難易度 → ルームコード表示', async () => {
     const page = await newPage();
     await registerUser(page, 'バトル2');
 
@@ -122,6 +126,10 @@ async function testBattleMode() {
     // テーマ選択（ボタン内がdivで分割されてるので :has-text を使用）
     await page.locator('text=テーマを選択').waitFor();
     await page.locator('button:has-text("一般クイズ")').click();
+
+    // ジャンル選択
+    await page.locator('text=ジャンルを選択').waitFor();
+    await page.locator('button:has-text("全ジャンル")').click();
 
     // 難易度選択
     await page.locator('text=難易度を選択').waitFor();
@@ -208,6 +216,7 @@ async function testTwoPlayerBattle() {
     await hostPage.locator('text=友達と対戦').click();
     await hostPage.locator('text=ルームを作る').click();
     await hostPage.locator('button:has-text("一般クイズ")').click();
+    await hostPage.locator('button:has-text("全ジャンル")').click();
     await hostPage.locator('button:has-text("全難易度")').click();
 
     // ルームコード取得

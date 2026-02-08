@@ -17,6 +17,7 @@ import type {
   Question,
   BattleState,
   Category,
+  GeneralGenre,
   Difficulty,
   ChapterId,
 } from '../types';
@@ -28,7 +29,7 @@ const BATTLE_QUESTION_COUNT = 10;
 
 type Props = {
   battle: BattleState;
-  createRoom: (config: { category: Category; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
+  createRoom: (config: { category: Category; genre?: GeneralGenre | 'all'; difficulty?: Difficulty | 'all'; chapter?: ChapterId }) => void;
   joinRoom: (code: string) => void;
   setReady: () => void;
   reportAnswer: (questionIndex: number, isCorrect: boolean, answerTime: number) => void;
@@ -53,10 +54,15 @@ export const BattleScreen = ({
 
     let pool: Question[];
     if (battle.config.category === 'general') {
+      pool = typedGeneralQuestions;
+      const genre = battle.config.genre;
+      if (genre && genre !== 'all') {
+        pool = pool.filter((q) => q.genre === genre);
+      }
       const diff = battle.config.difficulty;
-      pool = diff && diff !== 'all'
-        ? typedGeneralQuestions.filter((q) => q.difficulty === diff)
-        : typedGeneralQuestions;
+      if (diff && diff !== 'all') {
+        pool = pool.filter((q) => q.difficulty === diff);
+      }
     } else {
       const ch = battle.config.chapter;
       pool = ch && ch !== 'all'

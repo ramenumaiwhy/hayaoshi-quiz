@@ -16,11 +16,12 @@ import { ChapterSelect } from './components/ChapterSelect';
 import { FriendPanel } from './components/FriendPanel';
 import { QuestionCountSelect } from './components/QuestionCountSelect';
 import { DifficultySelect } from './components/DifficultySelect';
+import { GenreSelect } from './components/GenreSelect';
 import { Timer } from './components/Timer';
 import { BattleScreen } from './components/BattleScreen';
 import generalQuestions from './data/questions.json';
 import claudeCodeQuestions from './data/claude-code-questions.json';
-import type { Question, Category, Difficulty, ChapterId, QuestionCount, GameSettings, MasterRanking } from './types';
+import type { Question, Category, Difficulty, GeneralGenre, ChapterId, QuestionCount, GameSettings, MasterRanking } from './types';
 
 const typedGeneralQuestions = generalQuestions as Question[];
 const typedClaudeCodeQuestions = claudeCodeQuestions as Question[];
@@ -28,6 +29,7 @@ const typedClaudeCodeQuestions = claudeCodeQuestions as Question[];
 function App() {
   const [settings, setSettings] = useState<GameSettings | null>(null);
   const [quizKey, setQuizKey] = useState(0);
+  const [selectedGenre, setSelectedGenre] = useState<GeneralGenre | 'all' | undefined>(undefined);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all' | undefined>(undefined);
   const [showBattle, setShowBattle] = useState(false);
 
@@ -39,14 +41,18 @@ function App() {
 
   const questions = useMemo(() => {
     if (category === 'general') {
-      if (selectedDifficulty && selectedDifficulty !== 'all') {
-        return typedGeneralQuestions.filter((q) => q.difficulty === selectedDifficulty);
+      let filtered = typedGeneralQuestions;
+      if (selectedGenre && selectedGenre !== 'all') {
+        filtered = filtered.filter((q) => q.genre === selectedGenre);
       }
-      return typedGeneralQuestions;
+      if (selectedDifficulty && selectedDifficulty !== 'all') {
+        filtered = filtered.filter((q) => q.difficulty === selectedDifficulty);
+      }
+      return filtered;
     }
     if (category === 'claude-code') return typedClaudeCodeQuestions;
     return [];
-  }, [category, selectedDifficulty]);
+  }, [category, selectedGenre, selectedDifficulty]);
 
   const quizOptions = useMemo(
     () => ({
@@ -176,13 +182,22 @@ function App() {
     setIsNewRecord(false);
   }, []);
 
+  const handleGenreSelect = useCallback((genre: GeneralGenre | 'all') => {
+    setSelectedGenre(genre);
+  }, []);
+
   const handleDifficultySelect = useCallback((difficulty: Difficulty | 'all') => {
     setSelectedDifficulty(difficulty);
     setQuizKey((prev) => prev + 1);
   }, []);
 
-  const handleBackToCategoryFromDifficulty = useCallback(() => {
+  const handleBackToCategoryFromGenre = useCallback(() => {
     setSettings(null);
+    setSelectedGenre(undefined);
+  }, []);
+
+  const handleBackToGenreFromDifficulty = useCallback(() => {
+    setSelectedGenre(undefined);
     setSelectedDifficulty(undefined);
   }, []);
 
@@ -230,6 +245,7 @@ function App() {
 
   const handleBackToCategory = useCallback(() => {
     setSettings(null);
+    setSelectedGenre(undefined);
     setSelectedDifficulty(undefined);
     setIsNewRecord(false);
     setPendingRankPosition(null);
@@ -291,18 +307,35 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
-  const generalQuestionCounts = useMemo(() => ({
-    S: typedGeneralQuestions.filter((q) => q.difficulty === 'S').length,
-    A: typedGeneralQuestions.filter((q) => q.difficulty === 'A').length,
-    B: typedGeneralQuestions.filter((q) => q.difficulty === 'B').length,
-    C: typedGeneralQuestions.filter((q) => q.difficulty === 'C').length,
+  const genreQuestionCounts = useMemo(() => ({
+    language: typedGeneralQuestions.filter((q) => q.genre === 'language').length,
+    entertainment: typedGeneralQuestions.filter((q) => q.genre === 'entertainment').length,
+    food: typedGeneralQuestions.filter((q) => q.genre === 'food').length,
+    history: typedGeneralQuestions.filter((q) => q.genre === 'history').length,
+    science: typedGeneralQuestions.filter((q) => q.genre === 'science').length,
+    sports: typedGeneralQuestions.filter((q) => q.genre === 'sports').length,
     all: typedGeneralQuestions.length,
   }), []);
+
+  const genreFilteredQuestions = useMemo(() => {
+    if (selectedGenre && selectedGenre !== 'all') {
+      return typedGeneralQuestions.filter((q) => q.genre === selectedGenre);
+    }
+    return typedGeneralQuestions;
+  }, [selectedGenre]);
+
+  const generalQuestionCounts = useMemo(() => ({
+    S: genreFilteredQuestions.filter((q) => q.difficulty === 'S').length,
+    A: genreFilteredQuestions.filter((q) => q.difficulty === 'A').length,
+    B: genreFilteredQuestions.filter((q) => q.difficulty === 'B').length,
+    C: genreFilteredQuestions.filter((q) => q.difficulty === 'C').length,
+    all: genreFilteredQuestions.length,
+  }), [genreFilteredQuestions]);
 
   const isBattleActive = showBattle || battle.phase !== 'idle';
 
   const categoryLabel = category === 'claude-code' ? 'Claude Code 学習' : '一般クイズ';
-  const isGeneralSetupComplete = category === 'general' && selectedDifficulty !== undefined;
+  const isGeneralSetupComplete = category === 'general' && selectedGenre !== undefined && selectedDifficulty !== undefined;
   const isClaudeCodeSetupComplete =
     category === 'claude-code' &&
     (isMasterMode || (chapter !== undefined && questionCount !== undefined));
@@ -362,10 +395,18 @@ function App() {
           <>
             {!settings && <CategorySelect onSelect={handleCategorySelect} onBattle={handleBattleStart} />}
 
-            {category === 'general' && selectedDifficulty === undefined && (
+            {category === 'general' && selectedGenre === undefined && (
+              <GenreSelect
+                onSelect={handleGenreSelect}
+                onBack={handleBackToCategoryFromGenre}
+                questionCounts={genreQuestionCounts}
+              />
+            )}
+
+            {category === 'general' && selectedGenre !== undefined && selectedDifficulty === undefined && (
               <DifficultySelect
                 onSelect={handleDifficultySelect}
-                onBack={handleBackToCategoryFromDifficulty}
+                onBack={handleBackToGenreFromDifficulty}
                 questionCounts={generalQuestionCounts}
               />
             )}
