@@ -344,7 +344,11 @@ function App() {
   return (
     <div style={styles.app}>
       <header style={styles.header}>
-        <h1 style={styles.title}>
+        <h1
+          style={styles.title}
+          onClick={isBattleActive ? handleLeaveBattle : handleBackToCategory}
+          role="button"
+        >
           早押しクイズ
           {isBattleActive && <span style={styles.battleBadge}>⚔️ 対戦</span>}
           {!isBattleActive && category && <span style={styles.categoryBadge}>{categoryLabel}</span>}
@@ -550,6 +554,7 @@ const styles: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '12px',
+    cursor: 'pointer',
   },
   categoryBadge: {
     fontSize: '12px',
