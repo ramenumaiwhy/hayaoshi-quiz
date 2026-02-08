@@ -102,6 +102,7 @@ export const useFriends = (userId: string | null) => {
         return { success: false, error: '既に登録済みだ' };
       }
 
+      // 双方向に登録（A→BとB→Aの両方）
       const { error: insertError } = await supabase
         .from('friends')
         .insert({ user_id: userId, friend_user_id: targetUser.id });
@@ -109,6 +110,20 @@ export const useFriends = (userId: string | null) => {
       if (insertError) {
         console.error('Failed to add friend:', insertError);
         return { success: false, error: '追加に失敗した' };
+      }
+
+      // 逆方向も登録（既にあればスキップ）
+      const { data: reverseExisting } = await supabase
+        .from('friends')
+        .select('id')
+        .eq('user_id', targetUser.id)
+        .eq('friend_user_id', userId)
+        .limit(1);
+
+      if (!reverseExisting || reverseExisting.length === 0) {
+        await supabase
+          .from('friends')
+          .insert({ user_id: targetUser.id, friend_user_id: userId });
       }
 
       await fetchFriends();
@@ -120,6 +135,8 @@ export const useFriends = (userId: string | null) => {
   const removeFriend = useCallback(
     async (friendUserId: string) => {
       if (!userId) return;
+
+      // 双方向で削除
       const { error } = await supabase
         .from('friends')
         .delete()
@@ -130,6 +147,13 @@ export const useFriends = (userId: string | null) => {
         console.error('Failed to remove friend:', error);
         return;
       }
+
+      // 逆方向も削除
+      await supabase
+        .from('friends')
+        .delete()
+        .eq('user_id', friendUserId)
+        .eq('friend_user_id', userId);
 
       setFriends((prev) => prev.filter((friend) => friend.userId !== friendUserId));
     },
