@@ -64,20 +64,64 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
       addLine(error ? `❌ REST: ${error.message}` : '✅ REST: OK');
     });
 
-    // Test 2: Raw WebSocket + phx_join (supabase-js を完全にバイパス)
-    addLine('--- Raw WS + phx_join (supabase-js バイパス) ---');
+    // Test 2A: V2 配列形式 (vsn=2.0.0)
+    addLine('--- Test A: V2 array format (vsn=2.0.0) ---');
     try {
-      const wsUrl = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=2.0.0`;
-      addLine(`URL: ${wsUrl.substring(0, 70)}...`);
+      const wsUrlV2 = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=2.0.0`;
+      addLine(`URL: ${wsUrlV2.substring(0, 70)}...`);
 
-      const ws = new WebSocket(wsUrl);
-      addLine(`WS protocol header: "${ws.protocol || '(none)'}"`);
+      const wsA = new WebSocket(wsUrlV2);
 
-      ws.onopen = () => {
-        addLine(`✅ Raw WS: OPEN (readyState=${ws.readyState})`);
-        // Node.js で成功したのと全く同じ phx_join メッセージを送る
+      wsA.onopen = () => {
+        addLine(`✅ WS-A OPEN (ext="${wsA.extensions}", proto="${wsA.protocol}")`);
+        const joinMsg = JSON.stringify([
+          '1', '1', 'realtime:browser-v2-test', 'phx_join',
+          {
+            config: {
+              broadcast: { self: false, ack: false },
+              presence: { key: '', enabled: false },
+              postgres_changes: [],
+              private: false,
+            },
+            access_token: key,
+          },
+        ]);
+        wsA.send(joinMsg);
+        addLine('Sent phx_join (V2 ARRAY format)');
+      };
+
+      wsA.onmessage = (e) => {
+        const data = typeof e.data === 'string' ? e.data.substring(0, 300) : '(binary)';
+        addLine(`📩 A msg: ${data}`);
+        try {
+          const parsed = JSON.parse(e.data as string);
+          if (Array.isArray(parsed) && parsed[3] === 'phx_reply' && parsed[4]?.status === 'ok') {
+            addLine('✅✅ V2 ARRAY phx_join 成功！');
+          } else if (Array.isArray(parsed) && parsed[3] === 'phx_reply' && parsed[4]?.status === 'error') {
+            addLine(`❌ V2 phx_join エラー: ${JSON.stringify(parsed[4]?.response)}`);
+          }
+        } catch { /* ignore */ }
+      };
+
+      wsA.onerror = () => addLine('❌ WS-A ERROR');
+      wsA.onclose = (e) => addLine(`WS-A CLOSE: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`);
+      setTimeout(() => { if (wsA.readyState <= 1) { addLine('❌ WS-A: 10秒タイムアウト'); wsA.close(); } }, 10000);
+    } catch (e) {
+      addLine(`❌ WS-A error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    // Test 2B: V1 オブジェクト形式 (vsn=1.0.0)
+    addLine('--- Test B: V1 object format (vsn=1.0.0) ---');
+    try {
+      const wsUrlV1 = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=1.0.0`;
+      addLine(`URL: ${wsUrlV1.substring(0, 70)}...`);
+
+      const wsB = new WebSocket(wsUrlV1);
+
+      wsB.onopen = () => {
+        addLine(`✅ WS-B OPEN (ext="${wsB.extensions}", proto="${wsB.protocol}")`);
         const joinMsg = JSON.stringify({
-          topic: 'realtime:browser-raw-test',
+          topic: 'realtime:browser-v1-test',
           event: 'phx_join',
           payload: {
             config: {
@@ -91,39 +135,28 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
           ref: '1',
           join_ref: '1',
         });
-        ws.send(joinMsg);
-        addLine('Sent phx_join (same as Node.js)');
+        wsB.send(joinMsg);
+        addLine('Sent phx_join (V1 OBJECT format)');
       };
 
-      ws.onmessage = (e) => {
+      wsB.onmessage = (e) => {
         const data = typeof e.data === 'string' ? e.data.substring(0, 300) : '(binary)';
-        addLine(`📩 msg: ${data}`);
+        addLine(`📩 B msg: ${data}`);
         try {
           const parsed = JSON.parse(e.data as string);
           if (parsed.event === 'phx_reply' && parsed.payload?.status === 'ok') {
-            addLine('✅✅ RAW phx_join 成功！サーバーは正常！');
+            addLine('✅✅ V1 OBJECT phx_join 成功！');
           } else if (parsed.event === 'phx_reply' && parsed.payload?.status === 'error') {
-            addLine(`❌ phx_join エラー: ${JSON.stringify(parsed.payload.response)}`);
+            addLine(`❌ V1 phx_join エラー: ${JSON.stringify(parsed.payload.response)}`);
           }
-        } catch { /* ignore parse errors */ }
+        } catch { /* ignore */ }
       };
 
-      ws.onerror = (e) => {
-        addLine(`❌ Raw WS ERROR: type=${e.type}`);
-      };
-
-      ws.onclose = (e) => {
-        addLine(`Raw WS CLOSE: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`);
-      };
-
-      setTimeout(() => {
-        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
-          addLine('❌ Raw WS: 10秒タイムアウト');
-          ws.close();
-        }
-      }, 10000);
+      wsB.onerror = () => addLine('❌ WS-B ERROR');
+      wsB.onclose = (e) => addLine(`WS-B CLOSE: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`);
+      setTimeout(() => { if (wsB.readyState <= 1) { addLine('❌ WS-B: 10秒タイムアウト'); wsB.close(); } }, 10000);
     } catch (e) {
-      addLine(`❌ WS constructor error: ${e instanceof Error ? e.message : String(e)}`);
+      addLine(`❌ WS-B error: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Test 3: supabase-js channel (SafeWebSocket transport)
