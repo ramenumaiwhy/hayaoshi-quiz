@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
 import type { BattleState } from '../types';
 import { supabase } from '../lib/supabase';
 
@@ -58,72 +57,96 @@ export const BattleWaiting = ({ battle, onReady, onLeave }: Props) => {
     const url = import.meta.env.VITE_SUPABASE_URL as string;
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-    // Test 1: Raw WebSocket with message inspection
-    try {
-      const wsUrl = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=1.0.0`;
-      addLine(`WS URL: ${wsUrl.substring(0, 60)}...`);
-      const ws = new WebSocket(wsUrl);
-      ws.onopen = () => {
-        addLine('✅ Raw WS: OPEN');
-        // Send a Phoenix heartbeat to see if server responds
-        ws.send(JSON.stringify([null, null, 'phoenix', 'heartbeat', {}]));
-        addLine('Raw WS: sent heartbeat');
-      };
-      ws.onmessage = (e) => {
-        const data = typeof e.data === 'string' ? e.data.substring(0, 200) : '(binary)';
-        addLine(`Raw WS msg: ${data}`);
-        ws.close();
-      };
-      ws.onerror = () => addLine('❌ Raw WS: ERROR');
-      ws.onclose = (e) => addLine(`Raw WS close: code=${e.code} clean=${e.wasClean}`);
-    } catch (e) {
-      addLine(`❌ WS constructor error: ${e instanceof Error ? e.message : String(e)}`);
-    }
+    addLine(`Host: ${location.host} | UA: ${navigator.userAgent.substring(0, 60)}...`);
 
-    // Test 2: Existing singleton client
-    addLine('--- Singleton client ---');
-    const testCh1 = supabase.channel(`singleton-test-${Date.now()}`);
-    let resolved1 = false;
-    testCh1.subscribe((status, err) => {
-      if (resolved1) return;
-      addLine(`Singleton: ${status}${err ? ` (${String(err)})` : ''}`);
-      if (status === 'SUBSCRIBED') { resolved1 = true; supabase.removeChannel(testCh1); }
-      if (status === 'TIMED_OUT') { resolved1 = true; supabase.removeChannel(testCh1); }
-    });
-
-    // Test 3: FRESH client (key test!)
-    addLine('--- Fresh client ---');
-    const freshClient = createClient(url, key);
-    const testCh2 = freshClient.channel(`fresh-test-${Date.now()}`);
-    let resolved2 = false;
-    testCh2.subscribe((status, err) => {
-      if (resolved2) return;
-      addLine(`Fresh: ${status}${err ? ` (${String(err)})` : ''}`);
-      if (status === 'SUBSCRIBED') {
-        resolved2 = true;
-        addLine('✅ Fresh client: 成功！');
-        freshClient.removeChannel(testCh2);
-      }
-      if (status === 'TIMED_OUT') {
-        resolved2 = true;
-        addLine('❌ Fresh client: タイムアウト');
-        freshClient.removeChannel(testCh2);
-      }
-    });
-
-    setTimeout(() => {
-      if (!resolved1) { addLine('❌ Singleton: 10秒タイムアウト'); supabase.removeChannel(testCh1); }
-      if (!resolved2) { addLine('❌ Fresh: 10秒タイムアウト'); freshClient.removeChannel(testCh2); }
-    }, 10000);
-
-    // Test 4: REST
+    // Test 1: REST API
     supabase.from('users').select('id').limit(1).then(({ error }) => {
       addLine(error ? `❌ REST: ${error.message}` : '✅ REST: OK');
     });
 
-    // Test 5: Environment info
-    addLine(`Protocol: ${location.protocol} Host: ${location.host}`);
-    addLine(`UA: ${navigator.userAgent.substring(0, 80)}...`);
+    // Test 2: Raw WebSocket + phx_join (supabase-js を完全にバイパス)
+    addLine('--- Raw WS + phx_join (supabase-js バイパス) ---');
+    try {
+      const wsUrl = `wss://${url.replace('https://', '')}/realtime/v1/websocket?apikey=${key}&vsn=2.0.0`;
+      addLine(`URL: ${wsUrl.substring(0, 70)}...`);
+
+      const ws = new WebSocket(wsUrl);
+      addLine(`WS protocol header: "${ws.protocol || '(none)'}"`);
+
+      ws.onopen = () => {
+        addLine(`✅ Raw WS: OPEN (readyState=${ws.readyState})`);
+        // Node.js で成功したのと全く同じ phx_join メッセージを送る
+        const joinMsg = JSON.stringify({
+          topic: 'realtime:browser-raw-test',
+          event: 'phx_join',
+          payload: {
+            config: {
+              broadcast: { self: false, ack: false },
+              presence: { key: '', enabled: false },
+              postgres_changes: [],
+              private: false,
+            },
+            access_token: key,
+          },
+          ref: '1',
+          join_ref: '1',
+        });
+        ws.send(joinMsg);
+        addLine('Sent phx_join (same as Node.js)');
+      };
+
+      ws.onmessage = (e) => {
+        const data = typeof e.data === 'string' ? e.data.substring(0, 300) : '(binary)';
+        addLine(`📩 msg: ${data}`);
+        try {
+          const parsed = JSON.parse(e.data as string);
+          if (parsed.event === 'phx_reply' && parsed.payload?.status === 'ok') {
+            addLine('✅✅ RAW phx_join 成功！サーバーは正常！');
+          } else if (parsed.event === 'phx_reply' && parsed.payload?.status === 'error') {
+            addLine(`❌ phx_join エラー: ${JSON.stringify(parsed.payload.response)}`);
+          }
+        } catch { /* ignore parse errors */ }
+      };
+
+      ws.onerror = (e) => {
+        addLine(`❌ Raw WS ERROR: type=${e.type}`);
+      };
+
+      ws.onclose = (e) => {
+        addLine(`Raw WS CLOSE: code=${e.code} reason="${e.reason}" clean=${e.wasClean}`);
+      };
+
+      setTimeout(() => {
+        if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+          addLine('❌ Raw WS: 10秒タイムアウト');
+          ws.close();
+        }
+      }, 10000);
+    } catch (e) {
+      addLine(`❌ WS constructor error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+
+    // Test 3: supabase-js channel (SafeWebSocket transport)
+    addLine('--- supabase-js channel ---');
+    const testCh = supabase.channel(`js-test-${Date.now()}`);
+    let resolved = false;
+    testCh.subscribe((status, err) => {
+      if (resolved) return;
+      addLine(`supabase-js: ${status}${err ? ` err=${String(err)}` : ''}`);
+      if (status === 'SUBSCRIBED') {
+        resolved = true;
+        addLine('✅ supabase-js: 成功！');
+        supabase.removeChannel(testCh);
+      }
+      if (status === 'TIMED_OUT') {
+        resolved = true;
+        addLine('❌ supabase-js: タイムアウト');
+        supabase.removeChannel(testCh);
+      }
+    });
+    setTimeout(() => {
+      if (!resolved) { addLine('❌ supabase-js: 10秒タイムアウト'); supabase.removeChannel(testCh); }
+    }, 10000);
   }, []);
 
   return (
