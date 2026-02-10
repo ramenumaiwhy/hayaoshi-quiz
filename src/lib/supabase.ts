@@ -7,12 +7,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// realtime-js 2.95.3 が new Transport(url) で呼ぶが、WebSocketFactory 経由だと
-// new WS(url, undefined) になりブラウザが Sec-WebSocket-Protocol: undefined を送信して切断される。
+// realtime-js 2.95.3 が new WS(url, undefined) を呼び、一部ブラウザが
+// Sec-WebSocket-Protocol: undefined を送信して接続失敗する問題の回避策。
+// undefined のときだけ protocols を省略し、有効な値はそのまま渡す。
 // ref: https://github.com/supabase/supabase-js/issues/1473
 class SafeWebSocket extends WebSocket {
-  constructor(url: string | URL) {
-    super(url);
+  constructor(url: string | URL, protocols?: string | string[]) {
+    if (protocols) {
+      super(url, protocols);
+    } else {
+      super(url);
+    }
   }
 }
 
